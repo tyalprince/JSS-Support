@@ -1,0 +1,105 @@
+:root {
+  --navy: #1e3a6e;
+  --bg: #f4f6f9;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --muted: #64748b;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); }
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; font-size: 14px; }
+
+/* Auth screen */
+.auth-shell { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--navy); }
+.auth-form-panel { background: var(--card); border-radius: 12px; padding: 8px; width: 360px; }
+.auth-form-inner { padding: 24px; }
+.auth-title { margin: 0 0 4px; font-size: 22px; }
+.auth-sub { color: var(--muted); margin-bottom: 20px; font-size: 14px; }
+.auth-label { display: block; font-size: 13px; font-weight: 600; margin: 12px 0 4px; }
+.auth-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; }
+.auth-btn { width: 100%; margin-top: 20px; padding: 10px; background: var(--navy); color: white; border: none; border-radius: 8px; font-weight: 600; }
+.auth-btn:disabled { opacity: 0.6; }
+.auth-err { background: #fef2f2; color: #b91c1c; padding: 8px 12px; border-radius: 6px; font-size: 13px; margin-bottom: 8px; }
+
+/* App shell */
+.app-shell { min-height: 100vh; }
+.app-header { display: flex; align-items: center; gap: 20px; background: var(--navy); color: white; padding: 12px 24px; flex-wrap: wrap; }
+.app-header-title { font-weight: 700; font-size: 16px; }
+.app-nav { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+.nav-link { color: rgba(255,255,255,0.75); text-decoration: none; padding: 6px 10px; border-radius: 6px; font-size: 13px; }
+.nav-link.active, .nav-link:hover { background: rgba(255,255,255,0.15); color: white; }
+.app-header-user { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.signout-btn { background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 6px; padding: 6px 10px; font-size: 12px; }
+.app-main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+
+.page-title { margin: 0 0 16px; font-size: 20px; }
+.loading-state, .empty-state { color: var(--muted); padding: 24px; text-align: center; }
+.loading-fullpage, .error-fullpage { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.error-banner { background: #fef2f2; color: #b91c1c; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; }
+
+/* Filters */
+.filters-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+.filters-bar select, .filters-bar input[type="date"] { padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; }
+.filters-search { flex: 1; min-width: 200px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; }
+.filters-mine { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+
+/* Ticket table */
+.ticket-section { margin-bottom: 28px; }
+.section-header { display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); padding: 8px 0; border-bottom: 2px solid var(--border); margin-bottom: 8px; }
+.overdue-header { width: 100%; background: none; border: none; border-bottom: 2px solid var(--border); cursor: pointer; }
+.count-badge { background: var(--muted); color: white; border-radius: 999px; padding: 2px 9px; font-size: 12px; }
+.count-badge-overdue { background: #dc2626; }
+
+.ticket-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
+.ticket-table th { text-align: left; font-size: 12px; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.ticket-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+.ticket-table tr.row-overdue { background: #fef2f2; }
+.row-subject { font-weight: 600; color: var(--text); text-decoration: none; }
+.row-subject:hover { text-decoration: underline; }
+.row-preview { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.due-overdue { color: #b91c1c; font-weight: 600; }
+
+.assign-select { padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; }
+
+.badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; text-transform: capitalize; }
+.badge-status-open { background: #dbeafe; color: #1e40af; }
+.badge-status-in_progress { background: #fef9c3; color: #854d0e; }
+.badge-status-resolved { background: #dcfce7; color: #166534; }
+.badge-status-closed { background: #e2e8f0; color: #475569; }
+.badge-priority-urgent { background: #fee2e2; color: #991b1b; }
+.badge-priority-high { background: #ffedd5; color: #9a3412; }
+.badge-priority-normal { background: #e0f2fe; color: #075985; }
+.badge-priority-low { background: #f1f5f9; color: #475569; }
+
+/* Ticket detail */
+.back-link { color: var(--muted); text-decoration: none; font-size: 13px; }
+.ticket-detail-header { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; margin-top: 12px; flex-wrap: wrap; }
+.ticket-meta { color: var(--muted); font-size: 13px; margin-top: 4px; display: flex; gap: 6px; align-items: center; }
+.ticket-context { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.ticket-assign { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+
+.status-controls { display: flex; gap: 8px; align-items: center; margin: 16px 0; flex-wrap: wrap; }
+.status-controls button { padding: 8px 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); font-size: 13px; }
+.status-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
+.status-note { color: var(--muted); font-size: 12px; }
+
+.thread { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+.thread-message { border-radius: 8px; padding: 12px 14px; background: var(--card); border: 1px solid var(--border); }
+.thread-message.thread-staff { background: #eff6ff; border-color: #bfdbfe; }
+.thread-message.thread-system { background: #f8fafc; font-style: italic; color: var(--muted); }
+.thread-message.thread-family, .thread-message.thread-partner, .thread-message.thread-prospect { background: #fdf4ff; border-color: #f3d9fa; }
+.thread-message-meta { font-size: 11px; color: var(--muted); margin-bottom: 6px; text-transform: capitalize; }
+.thread-message-body { font-size: 14px; white-space: pre-wrap; }
+.ai-tag { background: #ede9fe; color: #5b21b6; border-radius: 999px; padding: 1px 8px; font-size: 10px; margin-left: 6px; text-transform: none; }
+
+.reply-box { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+.reply-box textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; resize: vertical; }
+.ai-draft-note { font-size: 12px; color: #5b21b6; margin-top: 6px; }
+.reply-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+.reply-actions button { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); font-size: 13px; }
+.reply-actions button.primary { background: var(--navy); color: white; border-color: var(--navy); }
+.reply-actions button:disabled { opacity: 0.6; cursor: not-allowed; }
