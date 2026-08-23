@@ -103,3 +103,13 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .reply-actions button { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); font-size: 13px; }
 .reply-actions button.primary { background: var(--navy); color: white; border-color: var(--navy); }
 .reply-actions button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Public contact page */
+.contact-shell { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--navy); padding: 24px; }
+.contact-card { background: var(--card); border-radius: 12px; padding: 32px; width: 100%; max-width: 440px; }
+.contact-card h1 { margin: 0 0 6px; font-size: 22px; }
+.contact-sub { color: var(--muted); font-size: 14px; margin: 0 0 20px; }
+.contact-textarea { resize: vertical; }
+.contact-success { text-align: center; }
+.contact-success p { color: var(--muted); font-size: 14px; }
+.contact-honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
