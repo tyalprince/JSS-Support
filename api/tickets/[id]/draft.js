@@ -12,6 +12,7 @@ Style rules:
 - Directly answer or address what the sender asked, using only the context given.
 - Do NOT invent facts, dates, prices, or policies that are not in the provided context.
 - If the provided knowledge-base snippets or thread don't cover what's needed, write a helpful holding reply and say a team member will follow up with specifics, rather than guessing.
+- Break the reply into short paragraphs (1-3 sentences each) with a blank line between them — never write it as one dense block of text. This becomes an actual formatted email, and each blank-line break becomes a real paragraph break there.
 - No markdown, no preamble like "Here's a draft" — output ONLY the reply text itself, ready to send as-is.`
 
 const STOP_WORDS = new Set([

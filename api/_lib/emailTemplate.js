@@ -21,7 +21,7 @@ export function renderReplyHtml(bodyText, { fromAddress = 'support@jumpstartspor
     .split(/\n\s*\n/)
     .map(p => p.trim())
     .filter(Boolean)
-    .map(p => `<p style="margin:0 0 14px;color:#334155 !important;">${escapeHtml(p).replace(/\n/g, '<br/>')}</p>`)
+    .map(p => `<p style="margin:0 0 20px;color:#334155 !important;">${escapeHtml(p).replace(/\n/g, '<br/>')}</p>`)
     .join('')
 
   return `<!DOCTYPE html>
