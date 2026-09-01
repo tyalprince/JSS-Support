@@ -5,6 +5,21 @@ export function formatDateTime(iso) {
   })
 }
 
+export function formatDate(iso) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+// Days the ticket has been unresolved: still counting for an open/in_progress ticket, frozen at
+// whenever it was actually resolved/closed for one that's done.
+export function daysUnresolved(ticket) {
+  if (!ticket.created_at) return null
+  const start = new Date(ticket.created_at)
+  const isDone = ticket.status === 'resolved' || ticket.status === 'closed'
+  const end = isDone ? new Date(ticket.resolved_at || ticket.closed_at || ticket.updated_at) : new Date()
+  return Math.max(0, Math.floor((end - start) / (1000 * 60 * 60 * 24)))
+}
+
 export function isOverdue(ticket) {
   if (!ticket.due_at) return false
   if (ticket.status === 'resolved' || ticket.status === 'closed') return false
