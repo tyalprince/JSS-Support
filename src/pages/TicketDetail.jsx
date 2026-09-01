@@ -113,6 +113,7 @@ export default function TicketDetail({ id }) {
           {ticket.participants && <div className="ticket-context">Participant: {ticket.participants.first_name} {ticket.participants.last_name}</div>}
           {ticket.programs && <div className="ticket-context">Program: {ticket.programs.name}</div>}
           {ticket.partners && <div className="ticket-context">Partner: {ticket.partners.name}</div>}
+          {!ticket.families && ticket.reporter_email && <div className="ticket-context">From: {ticket.reporter_email}{ticket.inbound_address && ` · sent to ${ticket.inbound_address}`}</div>}
         </div>
         <div className="ticket-assign">
           <label>Assigned to</label>

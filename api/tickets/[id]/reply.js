@@ -7,6 +7,16 @@ import { supabaseAdmin } from '../../_lib/supabaseAdmin.js'
 import { requireStaff } from '../../_lib/requireStaff.js'
 import { sendEmail } from '../../_lib/sendEmail.js'
 import { sendSms } from '../../_lib/sendSms.js'
+import { renderReplyHtml } from '../../_lib/emailTemplate.js'
+
+// Only ever send from an address we actually control inbound routing for — never trust
+// ticket.inbound_address blindly as a From header, even though it's our own worker's data.
+const KNOWN_INBOUND_ADDRESSES = [
+  'help@jumpstartsportspgh.com',
+  'questions@jumpstartsportspgh.com',
+  'support@jumpstartsportspgh.com',
+  'info@jumpstartsportspgh.com',
+]
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -59,8 +69,14 @@ export default async function handler(req, res) {
   if (outboundChannel === 'email') {
     const to = ticket.families?.primary_email || ticket.partners?.contact_email || ticket.reporter_email
     if (to) {
+      const fromAddress = KNOWN_INBOUND_ADDRESSES.includes(ticket.inbound_address) ? ticket.inbound_address : 'support@jumpstartsportspgh.com'
       try {
-        await sendEmail({ to, subject: ticket.subject || 'Re: your support ticket', html: `<p>${escapeHtml(body)}</p>` })
+        await sendEmail({
+          to,
+          from: `Jump Start Sports <${fromAddress}>`,
+          subject: ticket.subject || 'Re: your support ticket',
+          html: renderReplyHtml(body),
+        })
         sent = true
       } catch (e) { warning = `Message logged, but email send failed: ${e.message}` }
     } else {
@@ -93,10 +109,4 @@ export default async function handler(req, res) {
   if (insertErr) return res.status(500).json({ error: insertErr.message })
 
   return res.status(200).json({ message, sent, warning })
-}
-
-function escapeHtml(s) {
-  return String(s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/\n/g, '<br/>')
 }
