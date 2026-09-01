@@ -108,5 +108,12 @@ export default async function handler(req, res) {
     .single()
   if (insertErr) return res.status(500).json({ error: insertErr.message })
 
+  // Responding is what completes a staff member's part of a ticket — assignment is who's
+  // accountable for that, not a gate on who can act. Any staff reply marks it resolved
+  // (service-role write, so this applies regardless of who's assigned or their RLS access).
+  if (ticket.status !== 'resolved' && ticket.status !== 'closed') {
+    await admin.from('support_tickets').update({ status: 'resolved' }).eq('id', ticketId)
+  }
+
   return res.status(200).json({ message, sent, warning })
 }
