@@ -3,7 +3,7 @@ import StatusBadge from './StatusBadge'
 import PriorityBadge from './PriorityBadge'
 import AssignDropdown from './AssignDropdown'
 import { channelLabel } from '../utils/channels'
-import { timeUntil, isOverdue } from '../utils/dates'
+import { timeUntil, isOverdue, formatDate, daysUnresolved } from '../utils/dates'
 
 export default function TicketTable({ tickets, staffOptions, onChanged, emptyLabel }) {
   if (!tickets.length) return <div className="empty-state">{emptyLabel || 'No tickets match these filters.'}</div>
@@ -17,6 +17,8 @@ export default function TicketTable({ tickets, staffOptions, onChanged, emptyLab
           <th>Status</th>
           <th>Priority</th>
           <th>Assigned</th>
+          <th>Created</th>
+          <th>Days Unresolved</th>
           <th>Due</th>
         </tr>
       </thead>
@@ -31,6 +33,8 @@ export default function TicketTable({ tickets, staffOptions, onChanged, emptyLab
             <td><StatusBadge status={t.status} /></td>
             <td><PriorityBadge priority={t.priority} /></td>
             <td><AssignDropdown ticket={t} staffOptions={staffOptions} onAssigned={onChanged} /></td>
+            <td>{formatDate(t.created_at)}</td>
+            <td>{daysUnresolved(t)}d</td>
             <td className={isOverdue(t) ? 'due-overdue' : ''}>{t.due_at ? timeUntil(t.due_at) : '—'}</td>
           </tr>
         ))}
