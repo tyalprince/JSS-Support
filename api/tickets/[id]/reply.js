@@ -41,15 +41,23 @@ export default async function handler(req, res) {
     .maybeSingle()
   if (lastErr) return res.status(500).json({ error: lastErr.message })
 
-  const outboundChannel = lastInbound?.channel === 'email' || lastInbound?.channel === 'sms'
+  let outboundChannel = lastInbound?.channel === 'email' || lastInbound?.channel === 'sms'
     ? lastInbound.channel
     : null
+
+  // No thread yet (first-ever reply): infer from whatever contact info the ticket itself
+  // carries — the family/partner join, or reporter_email/phone for a contact-form/inbound-
+  // email lead with no family_id at all.
+  if (!outboundChannel && !lastInbound) {
+    if (ticket.families?.primary_email || ticket.partners?.contact_email || ticket.reporter_email) outboundChannel = 'email'
+    else if (ticket.families?.primary_phone || ticket.partners?.contact_phone || ticket.reporter_phone) outboundChannel = 'sms'
+  }
 
   let sent = false
   let warning = null
 
   if (outboundChannel === 'email') {
-    const to = ticket.families?.primary_email || ticket.partners?.contact_email
+    const to = ticket.families?.primary_email || ticket.partners?.contact_email || ticket.reporter_email
     if (to) {
       try {
         await sendEmail({ to, subject: ticket.subject || 'Re: your support ticket', html: `<p>${escapeHtml(body)}</p>` })
@@ -59,7 +67,7 @@ export default async function handler(req, res) {
       warning = 'Message logged, but no email address is on file for this ticket.'
     }
   } else if (outboundChannel === 'sms') {
-    const to = ticket.families?.primary_phone || ticket.partners?.contact_phone
+    const to = ticket.families?.primary_phone || ticket.partners?.contact_phone || ticket.reporter_phone
     if (to) {
       try {
         await sendSms({ to, body })

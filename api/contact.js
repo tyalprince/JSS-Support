@@ -48,7 +48,13 @@ export default async function handler(req, res) {
 
   const { data: ticket, error: insertErr } = await admin
     .from('support_tickets')
-    .insert({ channel: 'prospect', subject: `Website contact form — ${name}`, body })
+    .insert({
+      channel: 'prospect',
+      subject: `Website contact form — ${name}`,
+      body,
+      reporter_email: email,
+      reporter_phone: phone || null,
+    })
     .select()
     .single()
   if (insertErr) return res.status(500).json({ error: 'Something went wrong on our end. Please try again.' })
