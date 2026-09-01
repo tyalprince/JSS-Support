@@ -38,8 +38,9 @@ export default async function handler(req, res) {
   if (!senderEmail) return res.status(400).json({ error: 'Could not determine sender email' })
 
   const senderName = extractName(from) || senderEmail
+  const inboundAddress = extractEmail(to)
   const messageBody = (text && text.trim()) || stripHtml(html) || '(no message content)'
-  const body = to ? `Received at: ${to}\n\n${messageBody}` : messageBody
+  const body = inboundAddress ? `Received at: ${inboundAddress}\n\n${messageBody}` : messageBody
 
   const admin = supabaseAdmin()
   const { data: ticket, error } = await admin
@@ -49,6 +50,7 @@ export default async function handler(req, res) {
       subject: subject || `Email from ${senderName}`,
       body,
       reporter_email: senderEmail,
+      inbound_address: inboundAddress,
     })
     .select()
     .single()
