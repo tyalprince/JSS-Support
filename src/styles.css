@@ -113,3 +113,12 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .contact-success { text-align: center; }
 .contact-success p { color: var(--muted); font-size: 14px; }
 .contact-honeypot { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+/* AI draft revise row */
+.ai-revise-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+.ai-revise-row > button { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); font-size: 12px; color: #5b21b6; }
+.ai-revise-row > button:disabled { opacity: 0.6; cursor: not-allowed; }
+.ai-revise-custom { display: flex; gap: 6px; flex: 1; min-width: 220px; }
+.ai-revise-custom input { flex: 1; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; }
+.ai-revise-custom button { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); font-size: 12px; }
+.ai-revise-custom button:disabled { opacity: 0.6; cursor: not-allowed; }
