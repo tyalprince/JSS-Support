@@ -75,7 +75,7 @@ export default async function handler(req, res) {
           to,
           from: `Jump Start Sports <${fromAddress}>`,
           subject: ticket.subject || 'Re: your support ticket',
-          html: renderReplyHtml(body),
+          html: renderReplyHtml(body, { fromAddress }),
         })
         sent = true
       } catch (e) { warning = `Message logged, but email send failed: ${e.message}` }

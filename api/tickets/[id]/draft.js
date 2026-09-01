@@ -46,6 +46,7 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' })
 
   const ticketId = req.query.id
+  const { instruction, previousDraft } = req.body || {}
   const admin = supabaseAdmin()
 
   const { data: ticket, error: ticketErr } = await admin
@@ -95,12 +96,21 @@ export default async function handler(req, res) {
     ? knowledge.map(k => `Q: ${k.question}\nA: ${k.answer}`).join('\n\n')
     : '(no matching knowledge-base entries)'
 
-  const userMessage = [
-    'TICKET CONTEXT:', contextLines, '',
-    'THREAD SO FAR:', threadText, '',
-    'RELEVANT KNOWLEDGE BASE:', knowledgeText, '',
-    'Write the draft reply now.',
-  ].join('\n')
+  const userMessage = previousDraft && instruction
+    ? [
+        'TICKET CONTEXT:', contextLines, '',
+        'THREAD SO FAR:', threadText, '',
+        'RELEVANT KNOWLEDGE BASE:', knowledgeText, '',
+        'Here is a draft reply you already wrote for this ticket:', '', previousDraft, '',
+        `Revise it per this instruction: ${instruction}`,
+        'Keep it grounded in the same context above — do not invent new facts. Output ONLY the revised reply text, ready to send as-is.',
+      ].join('\n')
+    : [
+        'TICKET CONTEXT:', contextLines, '',
+        'THREAD SO FAR:', threadText, '',
+        'RELEVANT KNOWLEDGE BASE:', knowledgeText, '',
+        'Write the draft reply now.',
+      ].join('\n')
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
