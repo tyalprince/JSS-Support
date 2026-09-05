@@ -67,6 +67,12 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .ticket-table th { text-align: left; font-size: 12px; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--border); }
 .ticket-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
 .ticket-table tr.row-overdue { background: #fef2f2; }
+.ticket-table th.select-col, .ticket-table td.select-col { width: 32px; padding-right: 0; }
+
+.bulk-actions-bar { display: flex; align-items: center; gap: 10px; background: #1e293b; color: white; padding: 8px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
+.bulk-actions-bar button { padding: 6px 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: transparent; color: white; font-size: 12px; }
+.bulk-actions-bar button.danger { background: #dc2626; border-color: #dc2626; margin-left: auto; }
+.bulk-actions-bar button.danger:disabled { opacity: 0.6; cursor: not-allowed; }
 .row-subject { font-weight: 600; color: var(--text); text-decoration: none; }
 .row-subject:hover { text-decoration: underline; }
 .row-preview { color: var(--muted); font-size: 12px; margin-top: 2px; }
