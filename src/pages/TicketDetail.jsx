@@ -113,6 +113,13 @@ export default function TicketDetail({ id }) {
           {ticket.participants && <div className="ticket-context">Participant: {ticket.participants.first_name} {ticket.participants.last_name}</div>}
           {ticket.programs && <div className="ticket-context">Program: {ticket.programs.name}</div>}
           {ticket.partners && <div className="ticket-context">Partner: {ticket.partners.name}</div>}
+          {(ticket.reporter_email || ticket.reporter_phone) && (
+            <div className="ticket-context">
+              Contact: {[ticket.reporter_email, ticket.reporter_phone].filter(Boolean).join(' · ')}
+              {' · '}
+              <Link to={`/insight?q=${encodeURIComponent(ticket.reporter_email || ticket.reporter_phone)}`}>Look up in Insight →</Link>
+            </div>
+          )}
         </div>
         <div className="ticket-assign">
           <label>Assigned to</label>

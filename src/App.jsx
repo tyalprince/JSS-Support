@@ -4,6 +4,7 @@ import AuthScreen from './components/AuthScreen'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import TicketsRoute from './pages/TicketsRoute'
+import Insight from './pages/Insight'
 
 function Gate() {
   const { loading, user, staff, staffError } = useAuth()
@@ -17,6 +18,7 @@ function Gate() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/insight" element={<Insight />} />
         <Route path="/tickets/:key" element={<TicketsRoute />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

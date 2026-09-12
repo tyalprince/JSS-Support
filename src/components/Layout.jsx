@@ -11,6 +11,7 @@ export default function Layout() {
         <div className="app-header-title">JSS Support</div>
         <nav className="app-nav">
           <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Dashboard</NavLink>
+          <NavLink to="/insight" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Insight</NavLink>
           {CHANNELS.map(c => (
             <NavLink key={c.key} to={`/tickets/${c.key}`} className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
               {c.label}
