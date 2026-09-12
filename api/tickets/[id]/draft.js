@@ -12,6 +12,7 @@ Style rules:
 - Directly answer or address what the sender asked, using only the context given.
 - Do NOT invent facts, dates, prices, or policies that are not in the provided context.
 - If the provided knowledge-base snippets or thread don't cover what's needed, write a helpful holding reply and say a team member will follow up with specifics, rather than guessing.
+- Break the reply into short paragraphs (1-3 sentences each) with a blank line between them — never write it as one dense block of text. This becomes an actual formatted email, and each blank-line break becomes a real paragraph break there.
 - No markdown, no preamble like "Here's a draft" — output ONLY the reply text itself, ready to send as-is.`
 
 const STOP_WORDS = new Set([
@@ -46,6 +47,7 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' })
 
   const ticketId = req.query.id
+  const { instruction, previousDraft } = req.body || {}
   const admin = supabaseAdmin()
 
   const { data: ticket, error: ticketErr } = await admin
@@ -95,12 +97,21 @@ export default async function handler(req, res) {
     ? knowledge.map(k => `Q: ${k.question}\nA: ${k.answer}`).join('\n\n')
     : '(no matching knowledge-base entries)'
 
-  const userMessage = [
-    'TICKET CONTEXT:', contextLines, '',
-    'THREAD SO FAR:', threadText, '',
-    'RELEVANT KNOWLEDGE BASE:', knowledgeText, '',
-    'Write the draft reply now.',
-  ].join('\n')
+  const userMessage = previousDraft && instruction
+    ? [
+        'TICKET CONTEXT:', contextLines, '',
+        'THREAD SO FAR:', threadText, '',
+        'RELEVANT KNOWLEDGE BASE:', knowledgeText, '',
+        'Here is a draft reply you already wrote for this ticket:', '', previousDraft, '',
+        `Revise it per this instruction: ${instruction}`,
+        'Keep it grounded in the same context above — do not invent new facts. Output ONLY the revised reply text, ready to send as-is.',
+      ].join('\n')
+    : [
+        'TICKET CONTEXT:', contextLines, '',
+        'THREAD SO FAR:', threadText, '',
+        'RELEVANT KNOWLEDGE BASE:', knowledgeText, '',
+        'Write the draft reply now.',
+      ].join('\n')
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {

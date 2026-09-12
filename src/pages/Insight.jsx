@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
-import { formatDate, formatDateTime } from '../utils/dates'
+import { formatDateOnly, formatDateTime } from '../utils/dates'
 
 const REGISTRATION_SELECT = `*,
   programs(name, sport, season, year, program_type),
@@ -30,7 +30,7 @@ function subsessionSummary(reg) {
   const timing = [s?.day_of_week || reg.day_of_week, (s?.start_time || reg.start_time) && `${s?.start_time || reg.start_time}–${s?.end_time || reg.end_time || ''}`]
     .filter(Boolean).join(' ')
   const dates = [s?.start_date || reg.session_start_date, s?.end_date || reg.session_end_date]
-    .filter(Boolean).map(formatDate).join(' – ')
+    .filter(Boolean).map(formatDateOnly).join(' – ')
   const location = s?.location || reg.session_location
   return { label, timing, dates, location, ageGroup: s?.age_group || reg.age_group }
 }
@@ -68,7 +68,7 @@ function FamilyCard({ family, participants, registrations }) {
           {family.loyalty_tier && <div><span className="insight-stat-label">Tier</span>{family.loyalty_tier}</div>}
           <div><span className="insight-stat-label">Seasons</span>{family.total_seasons ?? 0}</div>
           <div><span className="insight-stat-label">Total spend</span>{money(family.total_spend) || '$0.00'}</div>
-          {family.first_registered_date && <div><span className="insight-stat-label">Since</span>{formatDate(family.first_registered_date)}</div>}
+          {family.first_registered_date && <div><span className="insight-stat-label">Since</span>{formatDateOnly(family.first_registered_date)}</div>}
         </div>
       </div>
 
@@ -136,7 +136,7 @@ function RegistrationTable({ registrations }) {
                 {r.cancelled && <span className="badge badge-priority-urgent">cancelled</span>}
               </td>
               <td>{money(r.amount_paid ?? r.tuition)}</td>
-              <td>{formatDateTime(r.date_registered) || formatDate(r.registration_date)}</td>
+              <td>{formatDateTime(r.date_registered) || formatDateOnly(r.registration_date)}</td>
             </tr>
           )
         })}

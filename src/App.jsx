@@ -5,8 +5,9 @@ import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import TicketsRoute from './pages/TicketsRoute'
 import Insight from './pages/Insight'
+import ContactPage from './pages/ContactPage'
 
-function Gate() {
+function StaffApp() {
   const { loading, user, staff, staffError } = useAuth()
 
   if (loading) return <div className="loading-state loading-fullpage">Loading…</div>
@@ -29,9 +30,18 @@ function Gate() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Gate />
-      </AuthProvider>
+      <Routes>
+        {/* Public — no staff auth. Everything else lives behind the AuthProvider gate. */}
+        <Route path="/contact" element={<ContactPage />} />
+        <Route
+          path="/*"
+          element={
+            <AuthProvider>
+              <StaffApp />
+            </AuthProvider>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   )
 }

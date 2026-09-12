@@ -7,6 +7,16 @@ import { supabaseAdmin } from '../../_lib/supabaseAdmin.js'
 import { requireStaff } from '../../_lib/requireStaff.js'
 import { sendEmail } from '../../_lib/sendEmail.js'
 import { sendSms } from '../../_lib/sendSms.js'
+import { renderReplyHtml } from '../../_lib/emailTemplate.js'
+
+// Only ever send from an address we actually control inbound routing for — never trust
+// ticket.inbound_address blindly as a From header, even though it's our own worker's data.
+const KNOWN_INBOUND_ADDRESSES = [
+  'help@jumpstartsportspgh.com',
+  'questions@jumpstartsportspgh.com',
+  'support@jumpstartsportspgh.com',
+  'info@jumpstartsportspgh.com',
+]
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -41,25 +51,39 @@ export default async function handler(req, res) {
     .maybeSingle()
   if (lastErr) return res.status(500).json({ error: lastErr.message })
 
-  const outboundChannel = lastInbound?.channel === 'email' || lastInbound?.channel === 'sms'
+  let outboundChannel = lastInbound?.channel === 'email' || lastInbound?.channel === 'sms'
     ? lastInbound.channel
     : null
+
+  // No thread yet (first-ever reply): infer from whatever contact info the ticket itself
+  // carries — the family/partner join, or reporter_email/phone for a contact-form/inbound-
+  // email lead with no family_id at all.
+  if (!outboundChannel && !lastInbound) {
+    if (ticket.families?.primary_email || ticket.partners?.contact_email || ticket.reporter_email) outboundChannel = 'email'
+    else if (ticket.families?.primary_phone || ticket.partners?.contact_phone || ticket.reporter_phone) outboundChannel = 'sms'
+  }
 
   let sent = false
   let warning = null
 
   if (outboundChannel === 'email') {
-    const to = ticket.families?.primary_email || ticket.partners?.contact_email
+    const to = ticket.families?.primary_email || ticket.partners?.contact_email || ticket.reporter_email
     if (to) {
+      const fromAddress = KNOWN_INBOUND_ADDRESSES.includes(ticket.inbound_address) ? ticket.inbound_address : 'support@jumpstartsportspgh.com'
       try {
-        await sendEmail({ to, subject: ticket.subject || 'Re: your support ticket', html: `<p>${escapeHtml(body)}</p>` })
+        await sendEmail({
+          to,
+          from: `Jump Start Sports <${fromAddress}>`,
+          subject: ticket.subject || 'Re: your support ticket',
+          html: renderReplyHtml(body, { fromAddress }),
+        })
         sent = true
       } catch (e) { warning = `Message logged, but email send failed: ${e.message}` }
     } else {
       warning = 'Message logged, but no email address is on file for this ticket.'
     }
   } else if (outboundChannel === 'sms') {
-    const to = ticket.families?.primary_phone || ticket.partners?.contact_phone
+    const to = ticket.families?.primary_phone || ticket.partners?.contact_phone || ticket.reporter_phone
     if (to) {
       try {
         await sendSms({ to, body })
@@ -84,11 +108,12 @@ export default async function handler(req, res) {
     .single()
   if (insertErr) return res.status(500).json({ error: insertErr.message })
 
-  return res.status(200).json({ message, sent, warning })
-}
+  // Responding is what completes a staff member's part of a ticket — assignment is who's
+  // accountable for that, not a gate on who can act. Any staff reply marks it resolved
+  // (service-role write, so this applies regardless of who's assigned or their RLS access).
+  if (ticket.status !== 'resolved' && ticket.status !== 'closed') {
+    await admin.from('support_tickets').update({ status: 'resolved' }).eq('id', ticketId)
+  }
 
-function escapeHtml(s) {
-  return String(s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/\n/g, '<br/>')
+  return res.status(200).json({ message, sent, warning })
 }

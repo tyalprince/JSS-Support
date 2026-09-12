@@ -35,6 +35,7 @@ export default function TicketDetail({ id }) {
   const [sending, setSending] = useState(false)
   const [drafting, setDrafting] = useState(false)
   const [sendWarning, setSendWarning] = useState('')
+  const [customInstruction, setCustomInstruction] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -56,12 +57,14 @@ export default function TicketDetail({ id }) {
     load()
   }
 
-  async function handleDraft() {
+  async function requestDraft(payload) {
     setDrafting(true)
     setSendWarning('')
     try {
       const headers = await authHeaders()
-      const res = await fetch(`/api/tickets/${id}/draft`, { method: 'POST', headers })
+      const res = await fetch(`/api/tickets/${id}/draft`, {
+        method: 'POST', headers, body: JSON.stringify(payload || {}),
+      })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to draft reply')
       setReplyText(data.draft || '')
@@ -70,6 +73,22 @@ export default function TicketDetail({ id }) {
       setSendWarning(e.message)
     }
     setDrafting(false)
+  }
+
+  function handleDraft() {
+    requestDraft()
+  }
+
+  function handleRevise(instruction) {
+    if (!replyText.trim()) return
+    requestDraft({ instruction, previousDraft: replyText })
+  }
+
+  function handleCustomRevise(e) {
+    e.preventDefault()
+    if (!customInstruction.trim()) return
+    handleRevise(customInstruction.trim())
+    setCustomInstruction('')
   }
 
   async function handleSend() {
@@ -115,7 +134,9 @@ export default function TicketDetail({ id }) {
           {ticket.partners && <div className="ticket-context">Partner: {ticket.partners.name}</div>}
           {(ticket.reporter_email || ticket.reporter_phone) && (
             <div className="ticket-context">
-              Contact: {[ticket.reporter_email, ticket.reporter_phone].filter(Boolean).join(' · ')}
+              {ticket.families ? 'Contact: ' : 'From: '}
+              {[ticket.reporter_email, ticket.reporter_phone].filter(Boolean).join(' · ')}
+              {!ticket.families && ticket.inbound_address && ` · sent to ${ticket.inbound_address}`}
               {' · '}
               <Link to={`/insight?q=${encodeURIComponent(ticket.reporter_email || ticket.reporter_phone)}`}>Look up in Insight →</Link>
             </div>
@@ -161,6 +182,34 @@ export default function TicketDetail({ id }) {
           rows={5}
         />
         {isAiDraft && <div className="ai-draft-note">AI draft — review before sending</div>}
+        {isAiDraft && (
+          <div className="ai-revise-row">
+            <button
+              type="button"
+              onClick={() => handleRevise('Elaborate — add more detail and context while keeping the same warm, concise tone.')}
+              disabled={drafting}
+            >
+              Elaborate
+            </button>
+            <button
+              type="button"
+              onClick={() => handleRevise('Simplify — make it shorter and more concise while keeping the key information.')}
+              disabled={drafting}
+            >
+              Simplify
+            </button>
+            <form className="ai-revise-custom" onSubmit={handleCustomRevise}>
+              <input
+                type="text"
+                value={customInstruction}
+                onChange={e => setCustomInstruction(e.target.value)}
+                placeholder="Or tell me how to revise it…"
+                disabled={drafting}
+              />
+              <button type="submit" disabled={drafting || !customInstruction.trim()}>Revise</button>
+            </form>
+          </div>
+        )}
         <div className="reply-actions">
           <button onClick={handleDraft} disabled={drafting}>{drafting ? 'Drafting…' : 'Draft with AI'}</button>
           <button className="primary" onClick={handleSend} disabled={sending || !replyText.trim()}>{sending ? 'Sending…' : 'Send'}</button>
