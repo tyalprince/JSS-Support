@@ -5,6 +5,7 @@ import { useAuth } from '../lib/AuthContext'
 import StatusBadge from '../components/StatusBadge'
 import PriorityBadge from '../components/PriorityBadge'
 import AssignDropdown from '../components/AssignDropdown'
+import FamilyInsight from '../components/FamilyInsight'
 import { useActiveStaff } from '../hooks/useTickets'
 import { channelLabel } from '../utils/channels'
 import { formatDateTime } from '../utils/dates'
@@ -137,8 +138,6 @@ export default function TicketDetail({ id }) {
               {ticket.families ? 'Contact: ' : 'From: '}
               {[ticket.reporter_email, ticket.reporter_phone].filter(Boolean).join(' · ')}
               {!ticket.families && ticket.inbound_address && ` · sent to ${ticket.inbound_address}`}
-              {' · '}
-              <Link to={`/insight?q=${encodeURIComponent(ticket.reporter_email || ticket.reporter_phone)}`}>Look up in Insight →</Link>
             </div>
           )}
         </div>
@@ -147,6 +146,8 @@ export default function TicketDetail({ id }) {
           <AssignDropdown ticket={ticket} staffOptions={staffOptions} onAssigned={load} />
         </div>
       </div>
+
+      <FamilyInsight familyId={ticket.family_id} contact={ticket.reporter_email || ticket.reporter_phone} />
 
       <div className="status-controls">
         {!isManagement && <span className="status-note">Only management can change status or reassign.</span>}

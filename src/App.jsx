@@ -4,7 +4,6 @@ import AuthScreen from './components/AuthScreen'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import TicketsRoute from './pages/TicketsRoute'
-import Insight from './pages/Insight'
 import ContactPage from './pages/ContactPage'
 
 function StaffApp() {
@@ -19,7 +18,6 @@ function StaffApp() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/insight" element={<Insight />} />
         <Route path="/tickets/:key" element={<TicketsRoute />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
