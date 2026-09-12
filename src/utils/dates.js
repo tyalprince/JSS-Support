@@ -20,6 +20,17 @@ export function daysUnresolved(ticket) {
   return Math.max(0, Math.floor((end - start) / (1000 * 60 * 60 * 24)))
 }
 
+// Date-only columns (e.g. session_start_date) come back as "YYYY-MM-DD" with no time —
+// parsing that directly as UTC and rendering in a local zone can roll it back a day, so we
+// pin it to local midnight first. Distinct from formatDate() above, which formats full ISO
+// timestamps and is already relied on elsewhere for a shorter, year-less display.
+export function formatDateOnly(d) {
+  if (!d) return ''
+  return new Date(`${d}T00:00:00`).toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+  })
+}
+
 export function isOverdue(ticket) {
   if (!ticket.due_at) return false
   if (ticket.status === 'resolved' || ticket.status === 'closed') return false

@@ -5,6 +5,7 @@ import { useAuth } from '../lib/AuthContext'
 import StatusBadge from '../components/StatusBadge'
 import PriorityBadge from '../components/PriorityBadge'
 import AssignDropdown from '../components/AssignDropdown'
+import FamilyInsight from '../components/FamilyInsight'
 import { useActiveStaff } from '../hooks/useTickets'
 import { channelLabel } from '../utils/channels'
 import { formatDateTime } from '../utils/dates'
@@ -132,13 +133,21 @@ export default function TicketDetail({ id }) {
           {ticket.participants && <div className="ticket-context">Participant: {ticket.participants.first_name} {ticket.participants.last_name}</div>}
           {ticket.programs && <div className="ticket-context">Program: {ticket.programs.name}</div>}
           {ticket.partners && <div className="ticket-context">Partner: {ticket.partners.name}</div>}
-          {!ticket.families && ticket.reporter_email && <div className="ticket-context">From: {ticket.reporter_email}{ticket.inbound_address && ` · sent to ${ticket.inbound_address}`}</div>}
+          {(ticket.reporter_email || ticket.reporter_phone) && (
+            <div className="ticket-context">
+              {ticket.families ? 'Contact: ' : 'From: '}
+              {[ticket.reporter_email, ticket.reporter_phone].filter(Boolean).join(' · ')}
+              {!ticket.families && ticket.inbound_address && ` · sent to ${ticket.inbound_address}`}
+            </div>
+          )}
         </div>
         <div className="ticket-assign">
           <label>Assigned to</label>
           <AssignDropdown ticket={ticket} staffOptions={staffOptions} onAssigned={load} />
         </div>
       </div>
+
+      <FamilyInsight familyId={ticket.family_id} contact={ticket.reporter_email || ticket.reporter_phone} />
 
       <div className="status-controls">
         {!isManagement && <span className="status-note">Only management can change status or reassign.</span>}
