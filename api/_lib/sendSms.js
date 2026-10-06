@@ -1,3 +1,4 @@
+import { telnyxFetch } from './sandbox.js'
 const toE164 = (num) => '+' + String(num || '').replace(/[^\d]/g, '')
 
 export async function sendSms({ to, body }) {
@@ -6,7 +7,7 @@ export async function sendSms({ to, body }) {
   const fromNumber = toE164(process.env.TELNYX_PHONE_NUMBER)
   const toNumber = toE164(to)
 
-  const response = await fetch('https://api.telnyx.com/v2/messages', {
+  const response = await telnyxFetch('https://api.telnyx.com/v2/messages', {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ from: fromNumber, to: toNumber, text: body }),
