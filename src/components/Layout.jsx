@@ -1,6 +1,8 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 import { CHANNELS } from '../utils/channels'
+import AppSwitcher from './AppSwitcher.jsx'
+import { supabase } from '../lib/supabaseClient.js'
 
 export default function Layout() {
   const { staff, signOut } = useAuth()
@@ -18,6 +20,7 @@ export default function Layout() {
           ))}
         </nav>
         <div className="app-header-user">
+          <AppSwitcher current="support" supabase={supabase} tone="dark" overrides={import.meta.env.VITE_JSS_APP_LINKS} />
           <span>{staff ? `${staff.first_name} ${staff.last_name}` : ''}</span>
           <button className="signout-btn" onClick={signOut}>Sign out</button>
         </div>
