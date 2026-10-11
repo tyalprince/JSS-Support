@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 import { CHANNELS } from '../utils/channels'
 import AppSwitcher from './AppSwitcher.jsx'
+import { AccountButton } from './AccountCenter.jsx'
 import { supabase } from '../lib/supabaseClient.js'
 
 export default function Layout() {
@@ -10,7 +11,10 @@ export default function Layout() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <div className="app-header-title">JSS Support</div>
+        <div className="app-header-title" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <AccountButton supabase={supabase} appName="Support" compact />
+          JSS Support
+        </div>
         <nav className="app-nav">
           <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Dashboard</NavLink>
           {CHANNELS.map(c => (
