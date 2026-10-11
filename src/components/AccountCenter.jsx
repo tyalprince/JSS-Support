@@ -16,6 +16,7 @@
 // `company_details` row; who may see/edit it is decided by the database
 // (public.jss_is_app_admin()).
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 const NAVY = '#1a2340'
 const RED = '#c8202f'
@@ -473,7 +474,9 @@ export function AccountButton({ supabase, appName = '', tone = 'dark', compact =
         )}
       </button>
 
-      {open && (
+      {open && typeof document !== 'undefined' && createPortal((
+        // Rendered on <body>: the trigger usually sits in a sidebar whose
+        // transform/overflow would otherwise trap a position:fixed overlay.
         <div
           role="dialog"
           aria-modal="true"
@@ -505,7 +508,7 @@ export function AccountButton({ supabase, appName = '', tone = 'dark', compact =
             </div>
           </div>
         </div>
-      )}
+      ), document.body)}
     </>
   )
 }
