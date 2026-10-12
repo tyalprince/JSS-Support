@@ -4,15 +4,10 @@ import { supabase } from '../lib/supabaseClient'
 
 const FIELD_LABEL = { subject: 'Subject', sender: 'Sender' }
 
-function matches(rule, ticket) {
-  const kw = String(rule.keyword || '').trim().toLowerCase()
-  if (!kw) return false
-  const value = rule.match_field === 'sender' ? ticket.reporter_email : ticket.subject
-  return String(value || '').toLowerCase().includes(kw)
-}
 
-// Keyword blocker for inbound email: matching emails never become tickets (enforced in
-// /api/inbound/email). Management only -- RLS on support_blocked_keywords enforces it too.
+// Blocked keywords: preventive. A matching inbound email is never turned into a ticket --
+// enforced in the database (support_tickets_block_keywords trigger) and in
+// /api/inbound/email. Management only; RLS on support_blocked_keywords enforces it too.
 export default function SettingsPage() {
   const { isManagement, staff } = useAuth()
   const [rules, setRules] = useState([])
@@ -21,19 +16,12 @@ export default function SettingsPage() {
   const [field, setField] = useState('subject')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [openMatches, setOpenMatches] = useState([])
-  const [closing, setClosing] = useState(false)
 
   async function load() {
     setLoading(true)
-    const [{ data, error }, { data: open }] = await Promise.all([
-      supabase.from('support_blocked_keywords').select('*').order('created_at', { ascending: false }),
-      supabase.from('support_tickets').select('id, subject, reporter_email').in('status', ['open', 'in_progress']),
-    ])
+    const { data, error } = await supabase.from('support_blocked_keywords').select('*').order('created_at', { ascending: false })
     if (error) setError(error.message)
-    const list = data || []
-    setRules(list)
-    setOpenMatches((open || []).filter(t => list.some(r => matches(r, t))))
+    setRules(data || [])
     setLoading(false)
   }
 
@@ -60,15 +48,6 @@ export default function SettingsPage() {
     load()
   }
 
-  async function closeMatches() {
-    if (!openMatches.length) return
-    if (!confirm(`Close ${openMatches.length} open ticket${openMatches.length === 1 ? '' : 's'} that match your blocked keywords?`)) return
-    setClosing(true)
-    const { error } = await supabase.from('support_tickets').update({ status: 'closed' }).in('id', openMatches.map(t => t.id))
-    setClosing(false)
-    if (error) { alert(error.message); return }
-    load()
-  }
 
   return (
     <div className="page">
@@ -78,7 +57,7 @@ export default function SettingsPage() {
         <h2>Blocked keywords</h2>
         <p className="settings-help">
           Emails sent to the support inboxes whose <b>subject</b> or <b>sender address</b> contains one of these
-          keywords (not case-sensitive) won't create a ticket. Use sender keywords like <code>mac.bid</code> for
+          keywords (not case-sensitive) are blocked for good — they never create a ticket. Use sender keywords like <code>mac.bid</code> for
           companies whose subjects change every email.
         </p>
 
@@ -106,12 +85,6 @@ export default function SettingsPage() {
           </ul>
         )}
 
-        {!loading && openMatches.length > 0 && (
-          <div className="keyword-actions">
-            <span>{openMatches.length} open ticket{openMatches.length === 1 ? '' : 's'} already match these keywords.</span>
-            <button type="button" onClick={closeMatches} disabled={closing}>{closing ? 'Closing…' : 'Close them'}</button>
-          </div>
-        )}
       </section>
     </div>
   )

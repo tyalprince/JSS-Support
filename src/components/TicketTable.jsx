@@ -4,7 +4,7 @@ import StatusBadge from './StatusBadge'
 import PriorityBadge from './PriorityBadge'
 import AssignDropdown from './AssignDropdown'
 import { channelLabel } from '../utils/channels'
-import { timeUntil, isOverdue, formatDate, daysUnresolved } from '../utils/dates'
+import { timeUntil, isOverdue, isDone, formatDate, daysUnresolved } from '../utils/dates'
 import { useAuth } from '../lib/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 
@@ -119,7 +119,7 @@ export default function TicketTable({ tickets, staffOptions, onChanged, emptyLab
                 <td><AssignDropdown ticket={t} staffOptions={staffOptions} onAssigned={onChanged} /></td>
                 <td>{formatDate(t.created_at)}</td>
                 <td>{daysUnresolved(t)}d</td>
-                <td className={isOverdue(t) ? 'due-overdue' : ''}>{t.due_at ? timeUntil(t.due_at) : '—'}</td>
+                <td className={isOverdue(t) ? 'due-overdue' : ''}>{isDone(t) ? <span className="due-done">{t.status === 'closed' ? 'Closed' : 'Resolved'}</span> : t.due_at ? timeUntil(t.due_at) : '—'}</td>
               </tr>
             ))}
           </tbody>

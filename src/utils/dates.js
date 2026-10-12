@@ -31,6 +31,10 @@ export function formatDateOnly(d) {
   })
 }
 
+export function isDone(ticket) {
+  return ticket.status === 'resolved' || ticket.status === 'closed'
+}
+
 export function isOverdue(ticket) {
   if (!ticket.due_at) return false
   if (ticket.status === 'resolved' || ticket.status === 'closed') return false

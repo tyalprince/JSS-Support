@@ -20,7 +20,8 @@ export default function TicketFilters({ filters, setFilter, toggleMine, lockChan
         onChange={e => setQ(e.target.value)}
       />
       <select value={filters.status} onChange={e => setFilter('status', e.target.value)}>
-        <option value="">All statuses</option>
+        <option value="">Open tickets</option>
+        <option value="all">All statuses</option>
         {STATUSES.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
       </select>
       <select value={filters.priority} onChange={e => setFilter('priority', e.target.value)}>

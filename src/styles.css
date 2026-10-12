@@ -184,3 +184,5 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .keyword-list .kw-field { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #64748b; background: #f1f5f9; border-radius: 4px; padding: 2px 6px; }
 .keyword-list button { background: none; border: 1px solid #fecaca; color: #dc2626; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
 .keyword-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; font-size: 13px; color: #475569; }
+
+.due-done { color: #16a34a; font-weight: 600; }

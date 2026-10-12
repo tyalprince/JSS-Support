@@ -66,8 +66,11 @@ export default async function handler(req, res) {
       inbound_address: inboundAddress,
     })
     .select()
-    .single()
+    .maybeSingle()
   if (error) return res.status(500).json({ error: error.message })
+  // The database also enforces the blocklist (support_tickets_block_keywords trigger skips
+  // the insert), so no row back means it was blocked there.
+  if (!ticket) return res.status(200).json({ success: true, blocked: true })
 
   return res.status(200).json({ success: true, ticketId: ticket.id })
 }

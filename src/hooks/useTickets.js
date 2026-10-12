@@ -14,7 +14,10 @@ export function useTickets(filters, currentStaffId) {
     let query = supabase.from('support_tickets').select(TICKET_SELECT)
 
     if (filters.channel) query = query.eq('channel', filters.channel)
-    if (filters.status) query = query.eq('status', filters.status)
+    // Default view is the working queue (open + in progress); closed/resolved tickets only
+    // show when a status is picked or "All statuses" is chosen.
+    if (!filters.status) query = query.in('status', ['open', 'in_progress'])
+    else if (filters.status !== 'all') query = query.eq('status', filters.status)
     if (filters.priority) query = query.eq('priority', filters.priority)
     if (filters.mine && currentStaffId) query = query.eq('assigned_staff_id', currentStaffId)
     else if (filters.assigned) query = query.eq('assigned_staff_id', filters.assigned)
