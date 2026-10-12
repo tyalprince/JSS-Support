@@ -15,6 +15,7 @@ export default function TicketTable({ tickets, staffOptions, onChanged, emptyLab
   const { isManagement } = useAuth()
   const [selected, setSelected] = useState(new Set())
   const [deleting, setDeleting] = useState(false)
+  const [completing, setCompleting] = useState(false)
 
   if (!tickets.length) return <div className="empty-state">{emptyLabel || 'No tickets match these filters.'}</div>
 
@@ -44,12 +45,28 @@ export default function TicketTable({ tickets, staffOptions, onChanged, emptyLab
     onChanged?.()
   }
 
+  async function handleComplete() {
+    const count = selected.size
+    if (!count) return
+    if (!confirm(`Mark ${count} ticket${count === 1 ? '' : 's'} complete (closed)? They can be reopened from the ticket page.`)) return
+
+    setCompleting(true)
+    const { error } = await supabase.from('support_tickets').update({ status: 'closed' }).in('id', [...selected])
+    setCompleting(false)
+    if (error) { alert(error.message); return }
+    setSelected(new Set())
+    onChanged?.()
+  }
+
   return (
     <>
       {isManagement && selected.size > 0 && (
         <div className="bulk-actions-bar">
           <span>{selected.size} selected</span>
           <button type="button" onClick={() => setSelected(new Set())}>Clear</button>
+          <button type="button" className="complete" onClick={handleComplete} disabled={completing || deleting}>
+            {completing ? 'Completing…' : '✓ Complete'}
+          </button>
           <button type="button" className="danger" onClick={handleDelete} disabled={deleting}>
             {deleting ? 'Deleting…' : 'Delete selected'}
           </button>

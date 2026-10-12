@@ -6,7 +6,7 @@ import { AccountButton } from './AccountCenter.jsx'
 import { supabase } from '../lib/supabaseClient.js'
 
 export default function Layout() {
-  const { staff, signOut } = useAuth()
+  const { staff, signOut, isManagement } = useAuth()
 
   return (
     <div className="app-shell">
@@ -22,6 +22,9 @@ export default function Layout() {
               {c.label}
             </NavLink>
           ))}
+          {isManagement && (
+            <NavLink to="/settings" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Settings</NavLink>
+          )}
         </nav>
         <div className="app-header-user">
           <AppSwitcher current="support" supabase={supabase} tone="dark" overrides={import.meta.env.VITE_JSS_APP_LINKS} />

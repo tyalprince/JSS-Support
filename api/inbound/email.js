@@ -43,6 +43,19 @@ export default async function handler(req, res) {
   const body = inboundAddress ? `Received at: ${inboundAddress}\n\n${messageBody}` : messageBody
 
   const admin = supabaseAdmin()
+
+  // Keyword blocker (Support > Settings): drop marketing / automated mail instead of
+  // ticketing it. Answers 200 so the email worker doesn't retry. If the list can't be
+  // read, fall through and create the ticket rather than lose a real email.
+  const { data: blocked } = await admin.from('support_blocked_keywords').select('keyword, match_field')
+  const subj = String(subject || '').toLowerCase()
+  const hit = (blocked || []).find(b => {
+    const kw = String(b.keyword || '').trim().toLowerCase()
+    if (!kw) return false
+    return b.match_field === 'sender' ? senderEmail.includes(kw) : subj.includes(kw)
+  })
+  if (hit) return res.status(200).json({ success: true, blocked: true, keyword: hit.keyword })
+
   const { data: ticket, error } = await admin
     .from('support_tickets')
     .insert({
