@@ -5,6 +5,7 @@ import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import TicketsRoute from './pages/TicketsRoute'
 import ContactPage from './pages/ContactPage'
+import SettingsPage from './pages/SettingsPage'
 
 function StaffApp() {
   const { loading, user, staff, staffError } = useAuth()
@@ -19,6 +20,7 @@ function StaffApp() {
       <Route element={<Layout />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/tickets/:key" element={<TicketsRoute />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
