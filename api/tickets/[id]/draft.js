@@ -1,5 +1,6 @@
 // POST /api/tickets/:id/draft
-// Pulls the ticket thread, up to ~5 keyword-matched chat_knowledge rows, and the ticket's
+// Pulls the ticket thread, up to 6 keyword-matched live chat_knowledge entries (scoped to
+// this ticket's partner/program where set), and the ticket's
 // family/participant/program context, then asks Claude for a short on-brand draft reply.
 // The draft is returned to the UI for staff to review/edit — it is never sent automatically.
 import { supabaseAdmin } from '../../_lib/supabaseAdmin.js'
@@ -65,17 +66,23 @@ export default async function handler(req, res) {
     .order('created_at', { ascending: true })
   if (threadErr) return res.status(500).json({ error: threadErr.message })
 
+  // Live knowledge-base entries only (confirmed, inside their start/end window). Entries
+  // scoped to a partner or program count only when they match this ticket's partner/program.
   const keywords = extractKeywords(`${ticket.subject || ''} ${ticket.body || ''}`)
   let knowledge = []
   if (keywords.length) {
-    const orFilter = keywords.flatMap(w => [`question.ilike.%${w}%`, `answer.ilike.%${w}%`]).join(',')
-    const { data } = await admin
-      .from('chat_knowledge')
-      .select('question, answer, category')
-      .eq('active', true)
-      .or(orFilter)
-      .limit(5)
-    knowledge = data || []
+    const { data } = await admin.rpc('chat_knowledge_current')
+    knowledge = (data || [])
+      .filter(k => (!k.partner_id || k.partner_id === ticket.partner_id) && (!k.program_id || k.program_id === ticket.program_id))
+      .map(k => {
+        const text = `${k.question} ${k.answer}`.toLowerCase()
+        const hits = keywords.filter(w => text.includes(w)).length
+        const scoped = (k.partner_id && k.partner_id === ticket.partner_id) || (k.program_id && k.program_id === ticket.program_id)
+        return { ...k, score: hits + (scoped && hits ? 2 : 0) }
+      })
+      .filter(k => k.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6)
   }
 
   const contextLines = [
@@ -94,7 +101,11 @@ export default async function handler(req, res) {
     : '(no replies yet)'
 
   const knowledgeText = knowledge.length
-    ? knowledge.map(k => `Q: ${k.question}\nA: ${k.answer}`).join('\n\n')
+    ? knowledge.map(k => {
+        const scope = [k.program_type, k.sport, k.partner_name, k.location_name, k.program_name,
+          k.ends_at ? `until ${String(k.ends_at).slice(0, 10)}` : null].filter(Boolean).join(' · ')
+        return `${scope ? `(Applies to: ${scope})\n` : ''}Q: ${k.question}\nA: ${k.answer}`
+      }).join('\n\n')
     : '(no matching knowledge-base entries)'
 
   const userMessage = previousDraft && instruction
