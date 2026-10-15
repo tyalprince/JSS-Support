@@ -9,7 +9,9 @@ forwarding a copy to `tprince@jumpstartsports.com` like today.
 1. Cloudflare dashboard → Workers & Pages → Create → paste `index.js` as the worker's source,
    name it `jss-support-email-worker`, deploy.
 2. Worker → Settings → Variables and Secrets:
-   - `TARGET_URL` (plaintext) = `https://jss-support.vercel.app/api/inbound/email`
+   - `TARGET_URL` (plaintext) = `https://jss-support-pittsburgh.vercel.app/api/inbound/email`
+     Use this exact host. The old `jss-support.vercel.app` redirects here, and a redirect drops the
+     `Authorization` header, so every email gets a 401 and no ticket (broken Oct 6-15, 2026).
    - `SUPPORT_INBOUND_SECRET` (**encrypt** — Secret, not plaintext) = the value given alongside
      this file. It must match `SUPPORT_INBOUND_SECRET` set on the JSS-Support Vercel project.
 3. Email Routing → Routing rules → for each of `help@`, `questions@`, `support@`, `info@`:
