@@ -8,7 +8,7 @@
 //
 // Deploy: Cloudflare dashboard -> Workers & Pages -> Create Worker -> paste this file as the
 // only source -> Settings -> Variables and Secrets, add:
-//   TARGET_URL              = https://jss-support.vercel.app/api/inbound/email
+//   TARGET_URL              = https://jss-support-pittsburgh.vercel.app/api/inbound/email
 //   SUPPORT_INBOUND_SECRET  = (the value given alongside this file — set as a Secret, not plaintext)
 // Then in Email Routing -> Routing rules, point help@/questions@/support@/info@ at this worker
 // as the "Send to a Worker" action.
