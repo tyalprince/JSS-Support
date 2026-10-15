@@ -13,7 +13,8 @@ export default function Layout() {
       <header className="app-header">
         <div className="app-header-title" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <AccountButton supabase={supabase} appName="Support" compact />
-          JSS Support
+          <img src="/brand/jss-logo-white.png" alt="Jump Start Sports" className="app-header-logo" />
+          Support
         </div>
         <nav className="app-nav">
           <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Dashboard</NavLink>

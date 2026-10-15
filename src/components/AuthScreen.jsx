@@ -20,6 +20,7 @@ export default function AuthScreen() {
     <div className="auth-shell">
       <form className="auth-form-panel" onSubmit={handleSubmit}>
         <div className="auth-form-inner">
+          <img src="/brand/jss-logo.png" alt="Jump Start Sports" className="auth-logo" />
           <h1 className="auth-title">JSS Support</h1>
           <div className="auth-sub">Staff sign in</div>
           {error && <div className="auth-err">{error}</div>}

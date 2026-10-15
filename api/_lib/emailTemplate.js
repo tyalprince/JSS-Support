@@ -52,7 +52,7 @@ export function renderReplyHtml(bodyText, { fromAddress = 'support@jumpstartspor
         <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background-color:#ffffff;border-radius:10px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
           <tr>
             <td class="jss-header" bgcolor="#1e3a6e" style="background-color:#1e3a6e;padding:20px 28px;">
-              <span class="jss-header-text" style="color:#ffffff !important;font-size:18px;font-weight:700;letter-spacing:0.02em;">Jump Start Sports</span>
+              <img src="https://jss-support-pittsburgh.vercel.app/brand/jss-logo-white.png" width="180" height="50" alt="Jump Start Sports" style="display:block;width:180px;height:auto;max-width:100%;border:0;outline:none;text-decoration:none;color:#ffffff;font-size:18px;font-weight:700;" />
             </td>
           </tr>
           <tr>

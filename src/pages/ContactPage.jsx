@@ -32,6 +32,7 @@ export default function ContactPage() {
     return (
       <div className="contact-shell">
         <div className="contact-card contact-success">
+          <img src="/brand/jss-logo.png" alt="Jump Start Sports" className="contact-logo" />
           <h1>Thanks for reaching out!</h1>
           <p>We&rsquo;ve received your message and someone from our team will get back to you soon.</p>
         </div>
@@ -42,6 +43,7 @@ export default function ContactPage() {
   return (
     <div className="contact-shell">
       <form className="contact-card" onSubmit={handleSubmit}>
+        <img src="/brand/jss-logo.png" alt="Jump Start Sports" className="contact-logo" />
         <h1>Contact Jump Start Sports</h1>
         <p className="contact-sub">Questions about programs, camps, or getting started? Send us a message.</p>
         {error && <div className="auth-err">{error}</div>}
