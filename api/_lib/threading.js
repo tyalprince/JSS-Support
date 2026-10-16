@@ -11,11 +11,31 @@ export function threadKey(subject) {
 }
 
 /**
- * The ticket an inbound email continues: same sender, same subject (ignoring
- * reply prefixes), newest first. `tickets` are the sender's recent tickets.
+ * The ticket an inbound email continues. `tickets` are the sender's recent
+ * tickets, newest first. A reply to a conversation (same subject, ignoring
+ * Re:/Fwd:) goes to that conversation; otherwise any new email from a parent
+ * who already has a recent ticket goes to their latest one — every re-email
+ * reopens their ticket instead of starting another.
  */
 export function findThread(tickets, subject) {
+  const list = tickets || []
+  if (!list.length) return null
   const key = threadKey(subject)
-  if (!key) return null
-  return (tickets || []).find(t => threadKey(t.subject) === key) || null
+  return (key && list.find(t => threadKey(t.subject) === key)) || list[0]
+}
+
+/**
+ * Fields that reopen a resolved/closed ticket. Set here because the database
+ * trigger only records a reopen from 'closed' and leaves resolved_at set on a
+ * resolved ticket.
+ */
+export function reopenPatch(ticket, now = new Date()) {
+  if (ticket.status !== 'resolved' && ticket.status !== 'closed') return null
+  return {
+    status: 'open',
+    reopened_at: now.toISOString(),
+    reopened_count: (Number(ticket.reopened_count) || 0) + 1,
+    resolved_at: null,
+    closed_at: null,
+  }
 }
