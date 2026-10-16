@@ -3,6 +3,8 @@
 // this ticket's partner/program where set), and the ticket's
 // family/participant/program context, then asks Claude for a short on-brand draft reply.
 // The draft is returned to the UI for staff to review/edit — it is never sent automatically.
+// Body: { instruction?, previousDraft? } — instruction alone guides a first draft (what the
+// reply should say); with previousDraft it revises that draft.
 import { supabaseAdmin } from '../../_lib/supabaseAdmin.js'
 import { requireStaff } from '../../_lib/requireStaff.js'
 
@@ -121,6 +123,12 @@ export default async function handler(req, res) {
         'TICKET CONTEXT:', contextLines, '',
         'THREAD SO FAR:', threadText, '',
         'RELEVANT KNOWLEDGE BASE:', knowledgeText, '',
+        ...(instruction
+          ? [
+              'STAFF INSTRUCTIONS FOR THIS REPLY (from the JSS staff member sending it — follow them; facts stated here are confirmed and may be used):',
+              String(instruction).slice(0, 2000), '',
+            ]
+          : []),
         'Write the draft reply now.',
       ].join('\n')
 

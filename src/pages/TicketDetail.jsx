@@ -37,6 +37,7 @@ export default function TicketDetail({ id }) {
   const [drafting, setDrafting] = useState(false)
   const [sendWarning, setSendWarning] = useState('')
   const [customInstruction, setCustomInstruction] = useState('')
+  const [draftNotes, setDraftNotes] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -76,8 +77,10 @@ export default function TicketDetail({ id }) {
     setDrafting(false)
   }
 
-  function handleDraft() {
-    requestDraft()
+  function handleDraft(e) {
+    e?.preventDefault()
+    if (drafting) return
+    requestDraft(draftNotes.trim() ? { instruction: draftNotes.trim() } : undefined)
   }
 
   function handleRevise(instruction) {
@@ -211,8 +214,20 @@ export default function TicketDetail({ id }) {
             </form>
           </div>
         )}
+        <form className="ai-draft-notes" onSubmit={handleDraft}>
+          <label htmlFor="ai-draft-notes">What should the reply say? <span>(optional — guides Draft with AI)</span></label>
+          <input
+            id="ai-draft-notes"
+            type="text"
+            value={draftNotes}
+            onChange={e => setDraftNotes(e.target.value)}
+            placeholder="e.g. Apologize, resend the reset link and say it expires in 1 hour"
+            disabled={drafting}
+            enterKeyHint="send"
+          />
+        </form>
         <div className="reply-actions">
-          <button onClick={handleDraft} disabled={drafting}>{drafting ? 'Drafting…' : 'Draft with AI'}</button>
+          <button onClick={handleDraft} disabled={drafting}>{drafting ? 'Drafting…' : draftNotes.trim() ? 'Draft with AI from notes' : 'Draft with AI'}</button>
           <button className="primary" onClick={handleSend} disabled={sending || !replyText.trim()}>{sending ? 'Sending…' : 'Send'}</button>
         </div>
       </div>
