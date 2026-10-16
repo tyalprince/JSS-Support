@@ -1,15 +1,15 @@
 // POST /api/inbound/email
 // Receives parsed inbound email from the Cloudflare Email Worker (jss-support-email-worker)
 // handling help@/questions@/support@/info@jumpstartsportspgh.com, and creates a prospect-
-// channel support ticket — or, when it's a reply to an existing conversation
-// (same sender, same subject ignoring Re:/Fwd:), adds it to that ticket's thread
-// and reopens it. Protected by a shared secret since this has no Supabase session to
+// channel support ticket — or, when the sender already has a ticket from the last
+// 90 days, adds it to that ticket's thread (the same-subject conversation if there
+// is one, else their latest ticket) and reopens it. Protected by a shared secret since this has no Supabase session to
 // authenticate against — anyone with the URL but not the secret gets a 401.
 import { supabaseAdmin } from '../_lib/supabaseAdmin.js'
-import { findThread } from '../_lib/threading.js'
+import { findThread, reopenPatch } from '../_lib/threading.js'
 
-// How far back a reply can find the ticket it answers.
-const THREAD_WINDOW_DAYS = 60
+// How far back a re-email finds the parent's ticket (matches the 90-day auto-close).
+const THREAD_WINDOW_DAYS = 90
 
 function extractEmail(raw) {
   if (!raw) return null
@@ -62,12 +62,12 @@ export default async function handler(req, res) {
   })
   if (hit) return res.status(200).json({ success: true, blocked: true, keyword: hit.keyword })
 
-  // A reply continues its conversation instead of starting a new ticket, so
-  // staff see it on the ticket they answered (and a resolved one reopens).
+  // Any re-email continues the parent's ticket instead of starting a new one, so
+  // staff see it on the ticket they answered — and a resolved/closed one reopens.
   const since = new Date(Date.now() - THREAD_WINDOW_DAYS * 86400000).toISOString()
   const { data: recent } = await admin
     .from('support_tickets')
-    .select('id, subject, status, family_id')
+    .select('id, subject, status, family_id, reopened_count')
     .eq('reporter_email', senderEmail)
     .gte('created_at', since)
     .order('created_at', { ascending: false })
@@ -81,11 +81,13 @@ export default async function handler(req, res) {
       body,
     })
     if (msgErr) return res.status(500).json({ error: msgErr.message })
-    // Reopening fires the ticket trigger's reopened_at / reopened_count bookkeeping.
-    const patch = thread.status === 'resolved' || thread.status === 'closed' ? { status: 'open' } : { updated_at: new Date().toISOString() }
-    const { error: updErr } = await admin.from('support_tickets').update(patch).eq('id', thread.id)
+    const reopen = reopenPatch(thread)
+    const { error: updErr } = await admin
+      .from('support_tickets')
+      .update(reopen || { updated_at: new Date().toISOString() })
+      .eq('id', thread.id)
     if (updErr) return res.status(500).json({ error: updErr.message })
-    return res.status(200).json({ success: true, ticketId: thread.id, threaded: true, reopened: 'status' in patch })
+    return res.status(200).json({ success: true, ticketId: thread.id, threaded: true, reopened: !!reopen })
   }
 
   // New conversation: link it to the CRM family when exactly one family has this email.
