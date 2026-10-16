@@ -120,6 +120,11 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .reply-box { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
 .reply-box textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; resize: vertical; }
 .ai-draft-note { font-size: 12px; color: #5b21b6; margin-top: 6px; }
+.ai-draft-notes { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.ai-draft-notes label { font-size: 12px; font-weight: 600; color: #5b21b6; }
+.ai-draft-notes label span { font-weight: 400; color: var(--gray, #6b7280); }
+.ai-draft-notes input { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; /* 16px: no iOS zoom */ }
+.ai-draft-notes input:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
 .reply-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
 .reply-actions button { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); font-size: 13px; }
 .reply-actions button.primary { background: var(--navy); color: white; border-color: var(--navy); }
