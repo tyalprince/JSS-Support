@@ -73,17 +73,20 @@ export default function TicketTable({ tickets, staffOptions, onChanged, emptyLab
         </div>
       )}
       <div className="ticket-table-wrap">
-        <table className="ticket-table">
+        <table className="ticket-table ticket-list-table">
           <thead>
             <tr>
               {isManagement && (
                 <th className="select-col">
-                  <input
-                    type="checkbox"
-                    checked={selected.size === tickets.length}
-                    onChange={toggleAll}
-                    aria-label="Select all tickets"
-                  />
+                  <label className="select-all">
+                    <input
+                      type="checkbox"
+                      checked={selected.size === tickets.length}
+                      onChange={toggleAll}
+                      aria-label="Select all tickets"
+                    />
+                    <span className="select-all-text">Select all</span>
+                  </label>
                 </th>
               )}
               <th>Subject</th>
@@ -109,17 +112,17 @@ export default function TicketTable({ tickets, staffOptions, onChanged, emptyLab
                     />
                   </td>
                 )}
-                <td>
+                <td className="cell-subject">
                   <Link to={`/tickets/${t.id}`} className="row-subject">{t.subject || '(no subject)'}</Link>
                   <div className="row-preview">{(t.body || '').slice(0, 90)}</div>
                 </td>
-                <td>{channelLabel(t.channel)}</td>
-                <td><StatusBadge status={t.status} /></td>
-                <td><PriorityBadge priority={t.priority} /></td>
-                <td><AssignDropdown ticket={t} staffOptions={staffOptions} onAssigned={onChanged} /></td>
-                <td>{formatDate(t.created_at)}</td>
-                <td>{daysUnresolved(t)}d</td>
-                <td className={isOverdue(t) ? 'due-overdue' : ''}>{isDone(t) ? <span className="due-done">{t.status === 'closed' ? 'Closed' : 'Resolved'}</span> : t.due_at ? timeUntil(t.due_at) : '—'}</td>
+                <td data-label="Channel">{channelLabel(t.channel)}</td>
+                <td data-label="Status"><StatusBadge status={t.status} /></td>
+                <td data-label="Priority"><PriorityBadge priority={t.priority} /></td>
+                <td data-label="Assigned"><AssignDropdown ticket={t} staffOptions={staffOptions} onAssigned={onChanged} /></td>
+                <td data-label="Created">{formatDate(t.created_at)}</td>
+                <td data-label="Days unresolved">{daysUnresolved(t)}d</td>
+                <td data-label="Due" className={isOverdue(t) ? 'due-overdue' : ''}>{isDone(t) ? <span className="due-done">{t.status === 'closed' ? 'Closed' : 'Resolved'}</span> : t.due_at ? timeUntil(t.due_at) : '—'}</td>
               </tr>
             ))}
           </tbody>

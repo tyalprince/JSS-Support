@@ -14,8 +14,8 @@ button { font-family: inherit; cursor: pointer; }
 input, select, textarea { font-family: inherit; font-size: 14px; }
 
 /* Auth screen */
-.auth-shell { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--navy); }
-.auth-form-panel { background: var(--card); border-radius: 12px; padding: 8px; width: 360px; }
+.auth-shell { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--navy); padding: 16px; }
+.auth-form-panel { background: var(--card); border-radius: 12px; padding: 8px; width: 100%; max-width: 360px; }
 .auth-form-inner { padding: 24px; }
 .auth-logo { display: block; width: 200px; max-width: 100%; height: auto; margin: 0 0 16px; }
 .auth-title { margin: 0 0 4px; font-size: 22px; }
@@ -38,12 +38,16 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .app-header-user { display: flex; align-items: center; gap: 10px; font-size: 13px; flex-shrink: 0; }
 .signout-btn { background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 6px; padding: 6px 10px; font-size: 12px; white-space: nowrap; }
 .app-main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+/* Phone menu: the toggle is hidden and the menu wrapper is layout-transparent on wider
+   screens, so the desktop header lays out exactly as before. */
+.menu-toggle { display: none; }
+.app-header-menu { display: contents; }
 
 @media (max-width: 520px) {
   .app-header { padding: 10px 12px; gap: 8px; }
   .app-header-title { font-size: 14px; }
   .app-header-logo { height: 24px; }
-  .app-header-user span { display: none; }
+  .app-header-user > span { display: none; }
   .app-main { padding: 12px; }
 }
 
@@ -71,6 +75,7 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .ticket-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
 .ticket-table tr.row-overdue { background: #fef2f2; }
 .ticket-table th.select-col, .ticket-table td.select-col { width: 32px; padding-right: 0; }
+.select-all-text { display: none; }
 
 .bulk-actions-bar { display: flex; align-items: center; gap: 10px; background: #1e293b; color: white; padding: 8px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
 .bulk-actions-bar button { padding: 6px 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: transparent; color: white; font-size: 12px; }
@@ -99,7 +104,7 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 /* Ticket detail */
 .back-link { color: var(--muted); text-decoration: none; font-size: 13px; }
 .ticket-detail-header { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; margin-top: 12px; flex-wrap: wrap; }
-.ticket-meta { color: var(--muted); font-size: 13px; margin-top: 4px; display: flex; gap: 6px; align-items: center; }
+.ticket-meta { color: var(--muted); font-size: 13px; margin-top: 4px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .ticket-context { color: var(--muted); font-size: 13px; margin-top: 2px; }
 .ticket-assign { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
 
@@ -156,7 +161,12 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .insight-participant { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
 .insight-participant-name { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
 .insight-participant-sub { color: var(--muted); font-weight: 400; }
-.insight-reg-table { margin-top: 4px; }
+.insight-reg-table { margin-top: 4px; min-width: 0; }
+.insight-reg-cards { display: none; list-style: none; margin: 4px 0 0; padding: 0; }
+.insight-reg-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+.insight-reg-card-title { font-weight: 600; font-size: 14px; }
+.insight-reg-card-sub { margin-top: 6px; font-weight: 500; }
+.insight-reg-card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 8px; font-size: 12px; color: var(--muted); }
 
 /* Public contact page */
 .contact-shell { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--navy); padding: 24px; }
@@ -196,3 +206,84 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .keyword-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; font-size: 13px; color: #475569; }
 
 .due-done { color: #16a34a; font-weight: 600; }
+
+/* Long email addresses, URLs and forwarded-email bodies must wrap instead of widening the page. */
+.page-title, .ticket-context, .thread-message-body, .insight-contact-lines, .insight-family-name { overflow-wrap: anywhere; word-break: break-word; }
+
+/* ---------- Phones (below md / 768px) ---------- */
+@media (max-width: 767.98px) {
+  /* 16px stops iOS Safari zooming the page when a field is focused */
+  input, select, textarea { font-size: 16px; }
+  .row-subject, .row-preview { overflow-wrap: anywhere; word-break: break-word; }
+
+  /* Header: logo row + menu button; nav and account controls in a drop-down panel */
+  .app-header { flex-wrap: wrap; }
+  .app-header-title { min-width: 0; }
+  .app-header-title > button { min-width: 44px; min-height: 44px; justify-content: center; }
+  .menu-toggle { display: inline-flex; align-items: center; justify-content: center; margin-left: auto; width: 44px; height: 44px; flex-shrink: 0; border: none; border-radius: 8px; background: rgba(255,255,255,0.12); color: white; }
+  .app-header-menu { display: none; flex-basis: 100%; flex-direction: column; gap: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.15); }
+  .app-header.menu-open .app-header-menu { display: flex; }
+  .app-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; overflow: visible; }
+  .nav-link { display: flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 15px; }
+  .app-header-user { flex-wrap: wrap; gap: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.15); }
+  .app-header-user > span { display: inline; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+  .app-header-user [aria-haspopup="menu"] { min-height: 44px; }
+  .signout-btn { min-height: 44px; padding: 0 16px; font-size: 14px; }
+
+  /* Filters: full-width search, two controls per row */
+  .filters-search { flex: 1 1 100%; min-width: 0; }
+  .filters-bar select, .filters-bar input[type="date"] { flex: 1 1 calc(50% - 4px); min-width: 0; min-height: 44px; }
+  .filters-mine { min-height: 44px; }
+  .filters-mine input { width: 20px; height: 20px; }
+
+  /* Ticket lists: each row becomes a card instead of a 760px-wide scrolling table */
+  .ticket-table-wrap { overflow: visible; }
+  .ticket-list-table, .ticket-list-table thead, .ticket-list-table tbody, .ticket-list-table thead tr { display: block; min-width: 0; background: transparent; border-radius: 0; overflow: visible; }
+  .ticket-list-table th { display: none; }
+  .ticket-list-table th.select-col { display: block; width: auto; padding: 0; border: none; }
+  .select-all { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .select-all-text { display: inline; }
+  .ticket-list-table tbody tr { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+  .ticket-list-table tbody tr.row-overdue { background: #fef2f2; border-color: #fecaca; }
+  .ticket-list-table td { display: block; min-width: 0; padding: 0; border: none; }
+  .ticket-list-table td[data-label]::before { content: attr(data-label); display: block; margin-bottom: 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
+  .ticket-list-table td.cell-subject { grid-column: 1 / -1; font-size: 14px; }
+  .ticket-list-table td.select-col { position: absolute; top: 2px; right: 2px; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; }
+  .ticket-list-table td.select-col ~ td.cell-subject { padding-right: 36px; }
+  .ticket-list-table input[type="checkbox"] { width: 20px; height: 20px; }
+  .ticket-list-table .assign-select { width: 100%; min-height: 40px; }
+  .bulk-actions-bar button { min-height: 40px; }
+
+  /* Ticket detail */
+  .ticket-detail-header { gap: 12px; }
+  .ticket-detail-header > div:first-child { flex: 1 1 100%; min-width: 0; }
+  .ticket-assign { width: 100%; }
+  .ticket-assign .assign-select { width: 100%; min-height: 44px; }
+  .status-controls button, .reply-actions button { min-height: 44px; }
+  .reply-actions { flex-wrap: wrap; }
+  .reply-actions button { flex: 1 1 auto; }
+  .ai-revise-row > button, .ai-revise-custom button { min-height: 40px; }
+  .ai-revise-custom { min-width: 0; flex-basis: 100%; }
+  .ai-revise-custom input { min-width: 0; }
+
+  /* JSS Insight panel */
+  .insight-bubble-header { min-height: 44px; }
+  .insight-bubble-body { padding: 4px 12px 12px; }
+  .insight-family-header { gap: 12px; }
+  .insight-family-header > div { min-width: 0; }
+  .insight-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; width: 100%; }
+  .insight-bubble-search input { min-width: 0; }
+  .insight-bubble-search button { min-height: 44px; }
+  .insight-reg-table { display: none; }
+  .insight-reg-cards { display: flex; flex-direction: column; gap: 8px; }
+
+  /* Settings */
+  .keyword-form input, .keyword-form select { flex: 1 1 100%; min-height: 44px; }
+  .keyword-form button { flex: 1 1 100%; min-height: 44px; }
+  .keyword-list li { flex-wrap: wrap; }
+  .keyword-list button { min-height: 40px; }
+
+  /* Public contact page */
+  .contact-shell { padding: 16px; }
+  .contact-card { padding: 24px 20px; }
+}
