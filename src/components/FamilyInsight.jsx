@@ -39,7 +39,8 @@ function programSubline(reg) {
   const sport = program?.sport || reg.sport
   if (!sport) return ''
   const season = program?.season || reg.season
-  return `${sport}${season ? ` · ${season}${program?.year || reg.year || ''}` : ''}`
+  const when = [season, program?.year || reg.year].filter(Boolean).join(' ')
+  return `${sport}${when ? ` · ${when}` : ''}`
 }
 
 function PaymentBadges({ reg }) {
