@@ -34,50 +34,97 @@ function subsessionSummary(reg) {
   return { label, timing, dates, location, ageGroup: s?.age_group || reg.age_group }
 }
 
+function programSubline(reg) {
+  const program = reg.programs
+  const sport = program?.sport || reg.sport
+  if (!sport) return ''
+  const season = program?.season || reg.season
+  return `${sport}${season ? ` · ${season}${program?.year || reg.year || ''}` : ''}`
+}
+
+function PaymentBadges({ reg }) {
+  return (
+    <>
+      {reg.payment_status && (() => {
+        const tone = paymentStatusTone(reg.payment_status)
+        const cls = tone === 'urgent' ? 'badge-priority-urgent' : `badge-status-${tone}`
+        return <span className={`badge ${cls}`}>{reg.payment_status}</span>
+      })()}
+      {reg.cancelled && <span className="badge badge-priority-urgent">cancelled</span>}
+    </>
+  )
+}
+
+function registeredOn(reg) {
+  return formatDateTime(reg.date_registered) || formatDateOnly(reg.registration_date)
+}
+
+// Table on tablet/desktop; the same rows as stacked cards on phones (CSS picks one), so
+// nothing runs off the side of a ~390px screen.
 function RegistrationTable({ registrations }) {
   if (registrations.length === 0) return <div className="empty-state">No registrations.</div>
   return (
-    <table className="ticket-table insight-reg-table">
-      <thead>
-        <tr>
-          <th>Program</th>
-          <th>Subsession</th>
-          <th>Status</th>
-          <th>Paid</th>
-          <th>Registered</th>
-        </tr>
-      </thead>
-      <tbody>
+    <>
+      <table className="ticket-table insight-reg-table">
+        <thead>
+          <tr>
+            <th>Program</th>
+            <th>Subsession</th>
+            <th>Status</th>
+            <th>Paid</th>
+            <th>Registered</th>
+          </tr>
+        </thead>
+        <tbody>
+          {registrations.map(r => {
+            const sub = subsessionSummary(r)
+            const subline = programSubline(r)
+            return (
+              <tr key={r.id}>
+                <td>
+                  {r.programs?.name || r.program || '—'}
+                  {subline && <div className="row-preview">{subline}</div>}
+                </td>
+                <td>
+                  {sub.label}
+                  {(sub.timing || sub.dates || sub.location) && (
+                    <div className="row-preview">{[sub.timing, sub.dates, sub.location].filter(Boolean).join(' · ')}</div>
+                  )}
+                </td>
+                <td><PaymentBadges reg={r} /></td>
+                <td>{money(r.amount_paid ?? r.tuition)}</td>
+                <td>{registeredOn(r)}</td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+
+      <ul className="insight-reg-cards">
         {registrations.map(r => {
           const sub = subsessionSummary(r)
-          const program = r.programs
+          const subline = programSubline(r)
+          const paid = money(r.amount_paid ?? r.tuition)
+          const registered = registeredOn(r)
           return (
-            <tr key={r.id}>
-              <td>
-                {program?.name || r.program || '—'}
-                {(program?.sport || r.sport) && <div className="row-preview">{program?.sport || r.sport}{(program?.season || r.season) && ` · ${program?.season || r.season}${program?.year || r.year || ''}`}</div>}
-              </td>
-              <td>
-                {sub.label}
-                {(sub.timing || sub.dates || sub.location) && (
-                  <div className="row-preview">{[sub.timing, sub.dates, sub.location].filter(Boolean).join(' · ')}</div>
-                )}
-              </td>
-              <td>
-                {r.payment_status && (() => {
-                  const tone = paymentStatusTone(r.payment_status)
-                  const cls = tone === 'urgent' ? 'badge-priority-urgent' : `badge-status-${tone}`
-                  return <span className={`badge ${cls}`}>{r.payment_status}</span>
-                })()}
-                {r.cancelled && <span className="badge badge-priority-urgent">cancelled</span>}
-              </td>
-              <td>{money(r.amount_paid ?? r.tuition)}</td>
-              <td>{formatDateTime(r.date_registered) || formatDateOnly(r.registration_date)}</td>
-            </tr>
+            <li key={r.id} className="insight-reg-card">
+              <div className="insight-reg-card-title">{r.programs?.name || r.program || '—'}</div>
+              {subline && <div className="row-preview">{subline}</div>}
+              <div className="insight-reg-card-sub">{sub.label}</div>
+              {sub.timing && <div className="row-preview">{sub.timing}</div>}
+              {(sub.dates || sub.location) && <div className="row-preview">{[sub.dates, sub.location].filter(Boolean).join(' · ')}</div>}
+              {(r.payment_status || r.cancelled || paid || registered) && (
+                <div className="insight-reg-card-foot">
+                  <PaymentBadges reg={r} />
+                  {paid && <span>Paid {paid}</span>}
+                  {registered && <span>Registered {registered}</span>}
+                </div>
+              )}
+            </li>
           )
         })}
-      </tbody>
-    </table>
+      </ul>
+    </>
   )
 }
 
