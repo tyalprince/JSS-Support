@@ -28,7 +28,8 @@ export function useTickets(filters, currentStaffId) {
       query = query.or(`subject.ilike.%${q}%,body.ilike.%${q}%`)
     }
 
-    query = query.order('due_at', { ascending: true, nullsFirst: false })
+    if (filters.sort === 'due') query = query.order('due_at', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false })
+    else query = query.order('created_at', { ascending: filters.sort === 'oldest' })
 
     const { data, error } = await query
     if (error) setError(error.message)

@@ -38,8 +38,19 @@ export default function TicketFilters({ filters, setFilter, toggleMine, lockChan
         <option value="">Any staff</option>
         {staffOptions.map(s => <option key={s.id} value={s.id}>{s.first_name} {s.last_name}</option>)}
       </select>
-      <input type="date" value={filters.from} onChange={e => setFilter('from', e.target.value)} title="Created from" />
-      <input type="date" value={filters.to} onChange={e => setFilter('to', e.target.value)} title="Created to" />
+      <select value={filters.sort} onChange={e => setFilter('sort', e.target.value === 'newest' ? '' : e.target.value)} aria-label="Sort">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="due">Due date</option>
+      </select>
+      <label className="filters-date">
+        <span>From</span>
+        <input type="date" value={filters.from} onChange={e => setFilter('from', e.target.value)} title="Created from" />
+      </label>
+      <label className="filters-date">
+        <span>To</span>
+        <input type="date" value={filters.to} onChange={e => setFilter('to', e.target.value)} title="Created to" />
+      </label>
       <label className="filters-mine">
         <input type="checkbox" checked={filters.mine} onChange={toggleMine} /> Assigned to me
       </label>
