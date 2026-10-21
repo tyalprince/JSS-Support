@@ -14,6 +14,8 @@ export function useTicketFilters(fixedChannel) {
     from: params.get('from') || '',
     to: params.get('to') || '',
     mine: params.get('mine') === '1',
+    // 'newest' (default) | 'oldest' | 'due'
+    sort: params.get('sort') || 'newest',
   }
 
   function setFilter(key, value) {
