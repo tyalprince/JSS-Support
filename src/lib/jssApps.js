@@ -2,34 +2,56 @@
 // Kept identical in every JSS app repo (CRM, Staff Portal, Support, Vendor,
 // Accounting, Registration, Family Portal) — change it everywhere together.
 //
-// Sibling URLs are derived from this app's own hostname, so a franchise's
-// deployments link to each other with no configuration:
-//   jss-crm-pittsburgh.vercel.app -> jss-staffing-pittsburgh.vercel.app, ...
-//   jss-crm-sandbox.vercel.app    -> jss-staffing-sandbox.vercel.app, ...
-// Anything else (localhost, previews, custom domains) falls back to Pittsburgh.
-// An optional JSON override ({"crm":"https://...", ...}) wins over both.
+// A franchise with its own domain (FRANCHISE_DOMAINS) links to its custom
+// subdomains; any other franchise links to its Vercel deployments:
+//   crm.jumpstartsportspittsburgh.com -> staff.jumpstartsportspittsburgh.com, ...
+//   jss-crm-pittsburgh.vercel.app     -> staff.jumpstartsportspittsburgh.com, ...
+//   jss-crm-sandbox.vercel.app        -> jss-staffing-sandbox.vercel.app, ...
+// Anything else (localhost, previews) falls back to Pittsburgh.
+// An optional JSON override ({"crm":"https://...", ...}) wins over all of these.
 
 export const JSS_HUB_URL = 'https://jss-hub.vercel.app'
 
+/** Franchises served from their own domain, and that domain. */
+export const FRANCHISE_DOMAINS = { pittsburgh: 'jumpstartsportspittsburgh.com' }
+
 export const JSS_APPS = [
   { key: 'hub', label: 'App Hub', note: 'All franchises' },
-  { key: 'crm', label: 'CRM', slug: 'crm' },
-  { key: 'staff_portal', label: 'Staff Portal', slug: 'staffing' },
-  { key: 'registration', label: 'Registration', slug: 'registration' },
-  { key: 'family_portal', label: 'Family Portal', slug: 'family-portal' },
-  { key: 'vendor_portal', label: 'Vendor Portal', slug: 'vendor' },
-  { key: 'accounting', label: 'Accounting', slug: 'accounting' },
-  { key: 'support', label: 'Support', slug: 'support' },
-  { key: 'hiring', label: 'Hiring', slug: 'hiring' },
+  { key: 'crm', label: 'CRM', slug: 'crm', sub: 'crm' },
+  { key: 'staff_portal', label: 'Staff Portal', slug: 'staffing', sub: 'staff' },
+  { key: 'registration', label: 'Registration', slug: 'registration', sub: 'register' },
+  { key: 'family_portal', label: 'Family Portal', slug: 'family-portal', sub: 'portal' },
+  { key: 'vendor_portal', label: 'Vendor Portal', slug: 'vendor', sub: 'vendors' },
+  { key: 'accounting', label: 'Accounting', slug: 'accounting', sub: 'accounting' },
+  { key: 'support', label: 'Support', slug: 'support', sub: 'support' },
+  { key: 'hiring', label: 'Hiring', slug: 'hiring', sub: 'jobs' },
 ]
 
-const SLUGS = JSS_APPS.filter((a) => a.slug).map((a) => a.slug).join('|')
+// Apps that have a deployment per franchise but aren't in the switcher.
+const OTHER_APPS = [{ key: 'sponsors', slug: 'sponsors', sub: 'sponsors' }]
+const ALL_APPS = [...JSS_APPS, ...OTHER_APPS]
+
+const SLUGS = ALL_APPS.filter((a) => a.slug).map((a) => a.slug).join('|')
 const HOST_RE = new RegExp(`^jss-(?:${SLUGS})-([a-z0-9]+)\\.vercel\\.app$`)
 
-/** Franchise suffix of a JSS production hostname, defaulting to pittsburgh. */
+/** Franchise of a JSS production hostname, defaulting to pittsburgh. */
 export function franchiseFromHost(hostname) {
-  const m = HOST_RE.exec(String(hostname || '').toLowerCase())
-  return m ? m[1] : 'pittsburgh'
+  const host = String(hostname || '').toLowerCase()
+  const m = HOST_RE.exec(host)
+  if (m) return m[1]
+  for (const [franchise, domain] of Object.entries(FRANCHISE_DOMAINS)) {
+    if (host === domain || host.endsWith(`.${domain}`)) return franchise
+  }
+  return 'pittsburgh'
+}
+
+/** Production URL of one JSS app (by key, e.g. 'family_portal') for a franchise. */
+export function jssAppUrl(key, franchise = 'pittsburgh') {
+  if (key === 'hub') return JSS_HUB_URL
+  const app = ALL_APPS.find((a) => a.key === key)
+  if (!app || !app.slug) return null
+  const domain = FRANCHISE_DOMAINS[franchise]
+  return domain ? `https://${app.sub}.${domain}` : `https://jss-${app.slug}-${franchise}.vercel.app`
 }
 
 function parseOverrides(raw) {
@@ -59,6 +81,6 @@ export function jssAppLinks(current, hostname, overrides) {
     key: a.key,
     label: a.label,
     note: a.note || null,
-    url: over[a.key] || (a.key === 'hub' ? JSS_HUB_URL : `https://jss-${a.slug}-${franchise}.vercel.app`),
+    url: over[a.key] || jssAppUrl(a.key, franchise),
   }))
 }

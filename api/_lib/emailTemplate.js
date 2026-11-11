@@ -1,3 +1,5 @@
+import { DEFAULT_FROM_ADDRESS, SITE_ORIGIN, PUBLIC_WEBSITE_URL } from './site.js'
+
 function escapeHtml(s) {
   return String(s)
     .replace(/&/g, '&amp;')
@@ -16,7 +18,7 @@ function escapeHtml(s) {
 // to force our real colors back rather than fighting Gmail's algorithm blind. bgcolor attributes
 // are kept alongside inline background-color as a second line of defense for clients that only
 // honor one or the other.
-export function renderReplyHtml(bodyText, { fromAddress = 'support@jumpstartsportspgh.com' } = {}) {
+export function renderReplyHtml(bodyText, { fromAddress = DEFAULT_FROM_ADDRESS } = {}) {
   const paragraphs = String(bodyText || '')
     .split(/\n\s*\n/)
     .map(p => p.trim())
@@ -52,7 +54,7 @@ export function renderReplyHtml(bodyText, { fromAddress = 'support@jumpstartspor
         <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background-color:#ffffff;border-radius:10px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
           <tr>
             <td class="jss-header" bgcolor="#1e3a6e" style="background-color:#1e3a6e;padding:20px 28px;">
-              <img src="https://jss-support-pittsburgh.vercel.app/brand/jss-logo-white.png" width="180" height="50" alt="Jump Start Sports" style="display:block;width:180px;height:auto;max-width:100%;border:0;outline:none;text-decoration:none;color:#ffffff;font-size:18px;font-weight:700;" />
+              <img src="${SITE_ORIGIN}/brand/jss-logo-white.png" width="180" height="50" alt="Jump Start Sports" style="display:block;width:180px;height:auto;max-width:100%;border:0;outline:none;text-decoration:none;color:#ffffff;font-size:18px;font-weight:700;" />
             </td>
           </tr>
           <tr>
@@ -65,7 +67,7 @@ export function renderReplyHtml(bodyText, { fromAddress = 'support@jumpstartspor
               <div class="jss-footer-title" style="font-weight:600;color:#475569 !important;margin-bottom:4px;">Jump Start Sports</div>
               <div style="color:#94a3b8 !important;">Youth sports camps &amp; programs in Pittsburgh, PA</div>
               <div style="margin-top:10px;">
-                <a class="jss-link" href="https://jumpstartsportspgh.com" style="color:#1e3a6e !important;text-decoration:none;">jumpstartsportspgh.com</a>
+                <a class="jss-link" href="${PUBLIC_WEBSITE_URL}" style="color:#1e3a6e !important;text-decoration:none;">jumpstartsportspittsburgh.com</a>
                 <span style="color:#94a3b8 !important;">&nbsp;·&nbsp;</span>
                 <a class="jss-link" href="mailto:${fromAddress}" style="color:#1e3a6e !important;text-decoration:none;">${fromAddress}</a>
               </div>

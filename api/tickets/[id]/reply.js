@@ -8,15 +8,9 @@ import { requireStaff } from '../../_lib/requireStaff.js'
 import { sendEmail } from '../../_lib/sendEmail.js'
 import { sendSms } from '../../_lib/sendSms.js'
 import { renderReplyHtml } from '../../_lib/emailTemplate.js'
-
-// Only ever send from an address we actually control inbound routing for — never trust
-// ticket.inbound_address blindly as a From header, even though it's our own worker's data.
-const KNOWN_INBOUND_ADDRESSES = [
-  'help@jumpstartsportspgh.com',
-  'questions@jumpstartsportspgh.com',
-  'support@jumpstartsportspgh.com',
-  'info@jumpstartsportspgh.com',
-]
+// Known inbound addresses (both domains) live in site.js; replies go out from the address
+// the ticket came in on, falling back to support@jumpstartsportspittsburgh.com.
+import { replyFromAddress } from '../../_lib/site.js'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -69,7 +63,7 @@ export default async function handler(req, res) {
   if (outboundChannel === 'email') {
     const to = ticket.families?.primary_email || ticket.partners?.contact_email || ticket.reporter_email
     if (to) {
-      const fromAddress = KNOWN_INBOUND_ADDRESSES.includes(ticket.inbound_address) ? ticket.inbound_address : 'support@jumpstartsportspgh.com'
+      const fromAddress = replyFromAddress(ticket.inbound_address)
       try {
         await sendEmail({
           to,
