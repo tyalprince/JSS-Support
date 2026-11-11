@@ -1,4 +1,5 @@
-// Cloudflare Email Worker for help@/questions@/support@/info@jumpstartsportspgh.com.
+// Cloudflare Email Worker for help@/questions@/support@/info@ on jumpstartsportspittsburgh.com
+// and the legacy jumpstartsportspgh.com (both domains route here; message.to tells them apart).
 // Parses the raw inbound email, forwards a copy to tprince@jumpstartsports.com (unchanged
 // behavior), and POSTs a clean JSON payload to JSS-Support's /api/inbound/email, which creates
 // a prospect-channel support ticket.
@@ -8,10 +9,12 @@
 //
 // Deploy: Cloudflare dashboard -> Workers & Pages -> Create Worker -> paste this file as the
 // only source -> Settings -> Variables and Secrets, add:
-//   TARGET_URL              = https://jss-support-pittsburgh.vercel.app/api/inbound/email
+//   TARGET_URL              = https://support.jumpstartsportspittsburgh.com/api/inbound/email
+//                             (exact host — a redirect drops the Authorization header)
 //   SUPPORT_INBOUND_SECRET  = (the value given alongside this file — set as a Secret, not plaintext)
-// Then in Email Routing -> Routing rules, point help@/questions@/support@/info@ at this worker
-// as the "Send to a Worker" action.
+// Then in Email Routing -> Routing rules, on BOTH zones (jumpstartsportspittsburgh.com and
+// jumpstartsportspgh.com), point help@/questions@/support@/info@ at this worker as the
+// "Send to a Worker" action.
 
 export default {
   async email(message, env, ctx) {

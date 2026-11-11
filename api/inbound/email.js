@@ -1,6 +1,7 @@
 // POST /api/inbound/email
 // Receives parsed inbound email from the Cloudflare Email Worker (jss-support-email-worker)
-// handling help@/questions@/support@/info@jumpstartsportspgh.com, and creates a prospect-
+// handling help@/questions@/support@/info@ on both jumpstartsportspittsburgh.com and the legacy
+// jumpstartsportspgh.com, and creates a prospect-
 // channel support ticket — or, when the sender already has a ticket from the last
 // 90 days, adds it to that ticket's thread (the same-subject conversation if there
 // is one, else their latest ticket) and reopens it. Protected by a shared secret since this has no Supabase session to
