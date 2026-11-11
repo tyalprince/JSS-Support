@@ -4,6 +4,7 @@
 // of RLS: a honeypot field bots tend to fill, and a per-email rate limit against recent tickets.
 import { supabaseAdmin } from './_lib/supabaseAdmin.js'
 import { sendEmail } from './_lib/sendEmail.js'
+import { DEFAULT_NOTIFY_EMAIL } from './_lib/site.js'
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
@@ -59,7 +60,7 @@ export default async function handler(req, res) {
     .single()
   if (insertErr) return res.status(500).json({ error: 'Something went wrong on our end. Please try again.' })
 
-  const notifyTo = process.env.SUPPORT_NOTIFY_EMAIL || 'info@jumpstartsportspgh.com'
+  const notifyTo = process.env.SUPPORT_NOTIFY_EMAIL || DEFAULT_NOTIFY_EMAIL
   sendEmail({
     to: notifyTo,
     subject: `New website inquiry from ${name}`,
