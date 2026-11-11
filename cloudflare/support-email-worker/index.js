@@ -4,8 +4,8 @@
 // behavior), and POSTs a clean JSON payload to JSS-Support's /api/inbound/email, which creates
 // a prospect-channel support ticket.
 //
-// MIME-parsing logic below is copied verbatim from jss-hiring-indeed-email-worker — it isn't
-// actually Indeed-specific, it's a general raw-email parser reused here as-is.
+// The MIME parsing below is a general raw-email parser (originally shared with the retired
+// Indeed hiring worker).
 //
 // Deploy: Cloudflare dashboard -> Workers & Pages -> Create Worker -> paste this file as the
 // only source -> Settings -> Variables and Secrets, add:
