@@ -13,7 +13,7 @@
 //
 // The franchise profile (city, brand name, phone, socials, ...) comes from more settings, same
 // prefixes: JSS_CITY, JSS_STATE, JSS_BRAND_NAME, JSS_SHORT_NAME, JSS_PHONE, JSS_TIMEZONE,
-// JSS_INSTAGRAM, JSS_FACEBOOK_NAME, JSS_CAMP_BOOKING_URL. Each unset (or invalid) value falls back
+// JSS_INSTAGRAM, JSS_FACEBOOK_NAME, JSS_CAMP_BOOKING_URL, JSS_LEGAL_NAME. Each unset (or invalid) value falls back
 // to Pittsburgh's (FRANCHISE_PROFILES.pittsburgh), so pages and emails never show a blank. A new
 // franchise must set them all; JSS-Hub provisioning requires them for production.
 //
@@ -44,6 +44,8 @@ export const FRANCHISE_PROFILES = {
     instagram: 'jumpstartsportspgh',
     facebookName: 'Jump Start Sports Pittsburgh',
     campBookingUrl: 'https://jumpstartsportspittsburgh.jumbula.com/',
+    // The legal entity that employs staff and signs offer letters and tax forms.
+    legalName: 'Steel City Young Athletes LLC',
   },
 }
 
@@ -93,6 +95,7 @@ const PROFILE_RULES = {
   instagram: ['INSTAGRAM', (v) => /^[A-Za-z0-9._]{1,30}$/.test(v)],
   facebookName: ['FACEBOOK_NAME', (v) => TEXT_RE.test(v)],
   campBookingUrl: ['CAMP_BOOKING_URL', (v) => /^https:\/\/[^\s<>"']+$/.test(v)],
+  legalName: ['LEGAL_NAME', (v) => TEXT_RE.test(v)],
 }
 
 /** The franchise profile from env; each missing or invalid value falls back to Pittsburgh's. */

@@ -89,6 +89,10 @@ test('with nothing set the profile is Pittsburgh, and franchiseConfig carries it
   assert.deepEqual(franchiseConfig({}).profile, FRANCHISE_PROFILES.pittsburgh)
   assert.equal(franchiseProfile(undefined).phone, '412-265-8267')
 })
+test('a franchise names its own legal entity; markup is refused', () => {
+  assert.equal(franchiseProfile({ JSS_LEGAL_NAME: 'Lake Erie Youth Sports LLC' }).legalName, 'Lake Erie Youth Sports LLC')
+  assert.equal(franchiseProfile({ JSS_LEGAL_NAME: '<b>x</b>' }).legalName, 'Steel City Young Athletes LLC')
+})
 test('common phone formats are accepted', () => {
   for (const ph of ['(216) 555-0100', '216.555.0100', '+1 216 555 0100', '2165550100']) assert.equal(franchiseProfile({ JSS_PHONE: ph }).phone, ph)
 })
@@ -102,6 +106,7 @@ test('profile settings win, with or without a prefix, keeping their case', () =>
     city: 'Cleveland', state: 'OH', brandName: 'Jump Start Sports Cleveland', shortName: 'JSSC',
     phone: '216-555-0100', timeZone: 'America/New_York', instagram: 'jumpstartsportscle',
     facebookName: 'Jump Start Sports Cleveland', campBookingUrl: 'https://jumpstartsportscle.jumbula.com/',
+    legalName: 'Steel City Young Athletes LLC',
   })
 })
 test('markup and junk never reach a page: invalid values fall back to Pittsburgh', () => {
