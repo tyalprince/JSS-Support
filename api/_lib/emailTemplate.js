@@ -1,4 +1,4 @@
-import { DEFAULT_FROM_ADDRESS, SITE_ORIGIN, PUBLIC_WEBSITE_URL, PUBLIC_WEBSITE_LABEL } from './site.js'
+import { SITE } from './site.js'
 
 function escapeHtml(s) {
   return String(s)
@@ -18,7 +18,9 @@ function escapeHtml(s) {
 // to force our real colors back rather than fighting Gmail's algorithm blind. bgcolor attributes
 // are kept alongside inline background-color as a second line of defense for clients that only
 // honor one or the other.
-export function renderReplyHtml(bodyText, { fromAddress = DEFAULT_FROM_ADDRESS } = {}) {
+// `site` defaults to this deployment's siteConfig(); tests pass another franchise's.
+export function renderReplyHtml(bodyText, { site = SITE, fromAddress = site.DEFAULT_FROM_ADDRESS } = {}) {
+  const { SITE_ORIGIN, PUBLIC_WEBSITE_URL, PUBLIC_WEBSITE_LABEL, PROFILE } = site
   const paragraphs = String(bodyText || '')
     .split(/\n\s*\n/)
     .map(p => p.trim())
@@ -65,7 +67,7 @@ export function renderReplyHtml(bodyText, { fromAddress = DEFAULT_FROM_ADDRESS }
           <tr>
             <td class="jss-footer" bgcolor="#f8fafc" style="background-color:#f8fafc;padding:18px 28px;color:#94a3b8 !important;font-size:12px;line-height:1.6;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;">
               <div class="jss-footer-title" style="font-weight:600;color:#475569 !important;margin-bottom:4px;">Jump Start Sports</div>
-              <div style="color:#94a3b8 !important;">Youth sports camps &amp; programs in Pittsburgh, PA</div>
+              <div style="color:#94a3b8 !important;">Youth sports camps &amp; programs in ${escapeHtml(PROFILE.city)}, ${escapeHtml(PROFILE.state)}</div>
               <div style="margin-top:10px;">
                 <a class="jss-link" href="${PUBLIC_WEBSITE_URL}" style="color:#1e3a6e !important;text-decoration:none;">${PUBLIC_WEBSITE_LABEL}</a>
                 <span style="color:#94a3b8 !important;">&nbsp;·&nbsp;</span>
