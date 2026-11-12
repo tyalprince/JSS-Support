@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 import { CHANNELS } from '../utils/channels'
+import { canOpenTab } from '../utils/tabAccess'
 import AppSwitcher from './AppSwitcher.jsx'
 import { AccountButton } from './AccountCenter.jsx'
 import { supabase } from '../lib/supabaseClient.js'
@@ -52,13 +53,13 @@ export default function Layout() {
         </button>
         <div className="app-header-menu" id="app-header-menu">
           <nav className="app-nav">
-            <NavLink to="/" end className={navClass}>Dashboard</NavLink>
-            {CHANNELS.map(c => (
+            {canOpenTab(staff, 'dashboard') && <NavLink to="/" end className={navClass}>Dashboard</NavLink>}
+            {CHANNELS.filter(c => canOpenTab(staff, c.key)).map(c => (
               <NavLink key={c.key} to={`/tickets/${c.key}`} className={navClass}>
                 {c.label}
               </NavLink>
             ))}
-            {isManagement && (
+            {isManagement && canOpenTab(staff, 'settings') && (
               <NavLink to="/settings" className={navClass}>Settings</NavLink>
             )}
           </nav>
