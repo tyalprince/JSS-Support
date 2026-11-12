@@ -89,6 +89,9 @@ test('with nothing set the profile is Pittsburgh, and franchiseConfig carries it
   assert.deepEqual(franchiseConfig({}).profile, FRANCHISE_PROFILES.pittsburgh)
   assert.equal(franchiseProfile(undefined).phone, '412-265-8267')
 })
+test('common phone formats are accepted', () => {
+  for (const ph of ['(216) 555-0100', '216.555.0100', '+1 216 555 0100', '2165550100']) assert.equal(franchiseProfile({ JSS_PHONE: ph }).phone, ph)
+})
 test('profile settings win, with or without a prefix, keeping their case', () => {
   const p = franchiseProfile({
     JSS_CITY: 'Cleveland', VITE_JSS_STATE: 'oh', NEXT_PUBLIC_JSS_BRAND_NAME: 'Jump Start Sports Cleveland',
