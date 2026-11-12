@@ -11,6 +11,12 @@
 //   JSS_EMAIL_DOMAIN  domain mail is sent from; unset = the site domain, else Pittsburgh's
 // With nothing set a deployment is Pittsburgh, exactly as before these settings existed.
 //
+// The franchise profile (city, brand name, phone, socials, ...) comes from more settings, same
+// prefixes: JSS_CITY, JSS_STATE, JSS_BRAND_NAME, JSS_SHORT_NAME, JSS_PHONE, JSS_TIMEZONE,
+// JSS_INSTAGRAM, JSS_FACEBOOK_NAME, JSS_CAMP_BOOKING_URL. Each unset (or invalid) value falls back
+// to Pittsburgh's (FRANCHISE_PROFILES.pittsburgh), so pages and emails never show a blank. A new
+// franchise must set them all; JSS-Hub provisioning requires them for production.
+//
 // App links: a franchise with a domain links to its subdomains, any other franchise to its
 // Vercel deployments:
 //   crm.jumpstartsportspittsburgh.com -> staff.jumpstartsportspittsburgh.com, ...
@@ -25,6 +31,21 @@ export const DEFAULT_FRANCHISE = 'pittsburgh'
 
 /** Franchises known to be served from their own domain, and that domain. */
 export const FRANCHISE_DOMAINS = { pittsburgh: 'jumpstartsportspittsburgh.com' }
+
+/** Profile values shown in pages, emails and AI prompts. Pittsburgh's are the fallback. */
+export const FRANCHISE_PROFILES = {
+  pittsburgh: {
+    city: 'Pittsburgh',
+    state: 'PA',
+    brandName: 'Jump Start Sports Pittsburgh',
+    shortName: 'JSSP',
+    phone: '412-265-8267',
+    timeZone: 'America/New_York',
+    instagram: 'jumpstartsportspgh',
+    facebookName: 'Jump Start Sports Pittsburgh',
+    campBookingUrl: 'https://jumpstartsportspittsburgh.jumbula.com/',
+  },
+}
 
 export const JSS_APPS = [
   { key: 'hub', label: 'App Hub', note: 'All franchises' },
@@ -47,13 +68,46 @@ const HOST_RE = new RegExp(`^jss-(?:${SLUGS})-([a-z0-9]+)\\.vercel\\.app$`)
 const SLUG_RE = /^[a-z0-9]+$/
 const DOMAIN_RE = /^(?=.{4,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/
 
-function setting(env, name) {
+function rawSetting(env, name) {
   const e = env || {}
   for (const k of [`JSS_${name}`, `VITE_JSS_${name}`, `NEXT_PUBLIC_JSS_${name}`]) {
     const v = e[k]
-    if (typeof v === 'string' && v.trim()) return v.trim().toLowerCase()
+    if (typeof v === 'string' && v.trim()) return v.trim()
   }
   return ''
+}
+
+function setting(env, name) {
+  return rawSetting(env, name).toLowerCase()
+}
+
+// Profile values end up inside HTML emails and AI prompts: plain text only, no markup.
+const TEXT_RE = /^[^<>{}`"\\\u0000-\u001f]{1,80}$/
+const PROFILE_RULES = {
+  city: ['CITY', (v) => TEXT_RE.test(v)],
+  state: ['STATE', (v) => /^[A-Z]{2}$/.test(v)],
+  brandName: ['BRAND_NAME', (v) => TEXT_RE.test(v)],
+  shortName: ['SHORT_NAME', (v) => /^[A-Za-z0-9]{2,12}$/.test(v)],
+  phone: ['PHONE', (v) => /^\+?[0-9][0-9 ().-]{6,20}$/.test(v)],
+  timeZone: ['TIMEZONE', (v) => /^[A-Za-z]+(?:\/[A-Za-z0-9_+-]+){1,2}$/.test(v)],
+  instagram: ['INSTAGRAM', (v) => /^[A-Za-z0-9._]{1,30}$/.test(v)],
+  facebookName: ['FACEBOOK_NAME', (v) => TEXT_RE.test(v)],
+  campBookingUrl: ['CAMP_BOOKING_URL', (v) => /^https:\/\/[^\s<>"']+$/.test(v)],
+}
+
+/** The franchise profile from env; each missing or invalid value falls back to Pittsburgh's. */
+export function franchiseProfile(env) {
+  const base = FRANCHISE_PROFILES[DEFAULT_FRANCHISE]
+  const out = {}
+  for (const [key, [name, valid]] of Object.entries(PROFILE_RULES)) {
+    let v = rawSetting(env, name)
+    if (key === 'state') v = v.toUpperCase()
+    if (key === 'instagram') v = v.replace(/^@/, '')
+    out[key] = v && valid(v) ? v : base[key]
+  }
+  // A franchise that names itself but not its Facebook page uses its brand name there too.
+  if (!rawSetting(env, 'FACEBOOK_NAME') && rawSetting(env, 'BRAND_NAME') && out.brandName !== base.brandName) out.facebookName = out.brandName
+  return out
 }
 
 /**
@@ -61,8 +115,9 @@ function setting(env, name) {
  * @param {object} env       env vars (process.env, import.meta.env, or a literal object)
  * @param {string} [hostname] request / window hostname, used when JSS_FRANCHISE is unset;
  *                            server code may omit it (Vercel's VERCEL_PROJECT_PRODUCTION_URL is used)
- * @returns {{ slug: string, siteDomain: string|null, emailDomain: string, domains: object }}
+ * @returns {{ slug: string, siteDomain: string|null, emailDomain: string, domains: object, profile: object }}
  *   domains: FRANCHISE_DOMAINS plus this franchise's domain, for host detection and links
+ *   profile: franchiseProfile(env) -- city, brand name, phone, time zone, socials, camp booking URL
  */
 export function franchiseConfig(env, hostname) {
   const named = setting(env, 'FRANCHISE')
@@ -73,7 +128,7 @@ export function franchiseConfig(env, hostname) {
   const email = setting(env, 'EMAIL_DOMAIN')
   const emailDomain = DOMAIN_RE.test(email) ? email : siteDomain || FRANCHISE_DOMAINS[DEFAULT_FRANCHISE]
   const domains = siteDomain ? { ...FRANCHISE_DOMAINS, [slug]: siteDomain } : { ...FRANCHISE_DOMAINS }
-  return { slug, siteDomain, emailDomain, domains }
+  return { slug, siteDomain, emailDomain, domains, profile: franchiseProfile(env) }
 }
 
 /** Franchise of a JSS production hostname, defaulting to `fallback` (pittsburgh). */

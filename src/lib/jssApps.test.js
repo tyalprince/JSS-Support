@@ -80,3 +80,32 @@ test('links follow the configured franchise domain', () => {
   const sb = franchiseConfig({ JSS_FRANCHISE: 'sandbox' })
   assert.equal(byKey(jssAppLinks('crm', 'jss-crm-sandbox-git-x-tyal-prince-s-projects.vercel.app', null, sb)).support, 'https://jss-support-sandbox.vercel.app')
 })
+
+// ---- Franchise profile (city, brand, phone, socials) -----------------------------------------
+import { franchiseProfile, FRANCHISE_PROFILES } from './jssApps.js'
+
+test('with nothing set the profile is Pittsburgh, and franchiseConfig carries it', () => {
+  assert.deepEqual(franchiseProfile({}), FRANCHISE_PROFILES.pittsburgh)
+  assert.deepEqual(franchiseConfig({}).profile, FRANCHISE_PROFILES.pittsburgh)
+  assert.equal(franchiseProfile(undefined).phone, '412-265-8267')
+})
+test('profile settings win, with or without a prefix, keeping their case', () => {
+  const p = franchiseProfile({
+    JSS_CITY: 'Cleveland', VITE_JSS_STATE: 'oh', NEXT_PUBLIC_JSS_BRAND_NAME: 'Jump Start Sports Cleveland',
+    JSS_SHORT_NAME: 'JSSC', JSS_PHONE: '216-555-0100', JSS_TIMEZONE: 'America/New_York',
+    JSS_INSTAGRAM: '@jumpstartsportscle', JSS_CAMP_BOOKING_URL: 'https://jumpstartsportscle.jumbula.com/',
+  })
+  assert.deepEqual(p, {
+    city: 'Cleveland', state: 'OH', brandName: 'Jump Start Sports Cleveland', shortName: 'JSSC',
+    phone: '216-555-0100', timeZone: 'America/New_York', instagram: 'jumpstartsportscle',
+    facebookName: 'Jump Start Sports Cleveland', campBookingUrl: 'https://jumpstartsportscle.jumbula.com/',
+  })
+})
+test('markup and junk never reach a page: invalid values fall back to Pittsburgh', () => {
+  const p = franchiseProfile({
+    JSS_CITY: '<script>alert(1)</script>', JSS_BRAND_NAME: 'x'.repeat(81), JSS_STATE: 'Ohio',
+    JSS_PHONE: 'call us', JSS_TIMEZONE: 'Mars', JSS_INSTAGRAM: 'bad handle!', JSS_FACEBOOK_NAME: 'a"b',
+    JSS_CAMP_BOOKING_URL: 'javascript:alert(1)', JSS_SHORT_NAME: 'J S S',
+  })
+  assert.deepEqual(p, FRANCHISE_PROFILES.pittsburgh)
+})

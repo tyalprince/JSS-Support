@@ -27,6 +27,9 @@ export function siteConfig(env = process.env) {
   const fromAddress = jssEmail('support')
   return {
     franchise,
+    // City, brand name, phone, time zone, socials (franchiseProfile in jssApps.js); Pittsburgh's
+    // when unset.
+    PROFILE: franchise.profile,
     EMAIL_DOMAIN: emailDomain,
     jssEmail,
     // This app's public origin — used for absolute URLs in outbound email (logo).
@@ -43,9 +46,10 @@ export function siteConfig(env = process.env) {
   }
 }
 
-const SITE = siteConfig()
+export const SITE = siteConfig()
 
 export const FRANCHISE = SITE.franchise
+export const PROFILE = SITE.PROFILE
 export const EMAIL_DOMAIN = SITE.EMAIL_DOMAIN
 export const jssEmail = SITE.jssEmail
 export const SITE_ORIGIN = SITE.SITE_ORIGIN

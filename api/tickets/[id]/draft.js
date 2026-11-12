@@ -7,8 +7,10 @@
 // reply should say); with previousDraft it revises that draft.
 import { supabaseAdmin } from '../../_lib/supabaseAdmin.js'
 import { requireStaff } from '../../_lib/requireStaff.js'
+import { PROFILE } from '../../_lib/site.js'
 
-const SYSTEM_PROMPT = `You are drafting a support reply on behalf of Jump Start Sports (JSS) staff, a youth sports organization in Pittsburgh, PA.
+// The franchise's city/state come from its profile (site.js); Pittsburgh's when unset.
+export const draftSystemPrompt = (profile = PROFILE) => `You are drafting a support reply on behalf of Jump Start Sports (JSS) staff, a youth sports organization in ${profile.city}, ${profile.state}.
 
 Style rules:
 - Warm, professional, concise — a few short sentences, not a long essay.
@@ -17,6 +19,8 @@ Style rules:
 - If the provided knowledge-base snippets or thread don't cover what's needed, write a helpful holding reply and say a team member will follow up with specifics, rather than guessing.
 - Break the reply into short paragraphs (1-3 sentences each) with a blank line between them — never write it as one dense block of text. This becomes an actual formatted email, and each blank-line break becomes a real paragraph break there.
 - No markdown, no preamble like "Here's a draft" — output ONLY the reply text itself, ready to send as-is.`
+
+const SYSTEM_PROMPT = draftSystemPrompt()
 
 const STOP_WORDS = new Set([
   'the', 'and', 'for', 'are', 'but', 'not', 'you', 'your', 'with', 'have', 'this', 'that',

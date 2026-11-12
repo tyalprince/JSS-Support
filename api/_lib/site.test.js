@@ -72,3 +72,37 @@ test('a sandbox deployment links to its own vercel.app host and mails from Pitts
   assert.equal(s.PUBLIC_WEBSITE_URL, 'https://www.jumpstartsportspittsburgh.com')
   assert.equal(s.KNOWN_INBOUND_ADDRESSES.length, 8)
 })
+
+// ---- Franchise profile (city, brand, phone, socials) ----------------------------------------
+import { PROFILE } from './site.js'
+import { draftSystemPrompt } from '../tickets/[id]/draft.js'
+
+const CLEVELAND = {
+  JSS_FRANCHISE: 'cleveland', JSS_SITE_DOMAIN: 'jumpstartsportscle.com',
+  JSS_CITY: 'Cleveland', JSS_STATE: 'OH', JSS_BRAND_NAME: 'Jump Start Sports Cleveland',
+  JSS_PHONE: '216-555-0100', JSS_INSTAGRAM: 'jumpstartsportscle',
+}
+
+test('with an empty env the reply email and AI prompt keep Pittsburgh\'s exact text', () => {
+  assert.equal(PROFILE.city, 'Pittsburgh')
+  assert.equal(siteConfig({}).PROFILE.state, 'PA')
+  const html = renderReplyHtml('Hi there')
+  assert.ok(html.includes('<div style="color:#94a3b8 !important;">Youth sports camps &amp; programs in Pittsburgh, PA</div>'))
+  assert.equal(renderReplyHtml('Hi there', { site: siteConfig({}) }), html)
+  assert.ok(draftSystemPrompt().startsWith('You are drafting a support reply on behalf of Jump Start Sports (JSS) staff, a youth sports organization in Pittsburgh, PA.\n\nStyle rules:\n'))
+  assert.equal(draftSystemPrompt(siteConfig({}).PROFILE), draftSystemPrompt())
+})
+
+test('a Cleveland profile shows up in the reply email and AI prompt, with no Pittsburgh left', () => {
+  const s = siteConfig(CLEVELAND)
+  assert.equal(s.PROFILE.brandName, 'Jump Start Sports Cleveland')
+  assert.equal(s.PROFILE.phone, '216-555-0100')
+  const html = renderReplyHtml('Hi there', { site: s })
+  assert.ok(html.includes('Youth sports camps &amp; programs in Cleveland, OH</div>'))
+  assert.ok(html.includes('href="mailto:support@jumpstartsportscle.com"'))
+  const prompt = draftSystemPrompt(s.PROFILE)
+  assert.ok(prompt.includes('a youth sports organization in Cleveland, OH.'))
+  for (const out of [html, prompt]) {
+    assert.ok(!/pittsburgh|412/i.test(out), out)
+  }
+})
