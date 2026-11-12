@@ -14,7 +14,7 @@ function GridIcon() {
   )
 }
 
-export default function AppSwitcher({ current, supabase, tone = 'light', overrides }) {
+export default function AppSwitcher({ current, supabase, tone = 'light', overrides, config }) {
   const [allowed, setAllowed] = useState(false)
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
@@ -55,7 +55,7 @@ export default function AppSwitcher({ current, supabase, tone = 'light', overrid
   }, [open])
 
   if (!allowed) return null
-  const links = jssAppLinks(current, typeof window !== 'undefined' ? window.location.hostname : '', overrides)
+  const links = jssAppLinks(current, typeof window !== 'undefined' ? window.location.hostname : '', overrides, config)
   const dark = tone === 'dark'
 
   return (

@@ -17,3 +17,6 @@ Derived from the code (`process.env.*` in `api/**`, `import.meta.env.*` in `src/
 | `ANTHROPIC_API_KEY` | Server | Yes for AI drafts | `api/tickets/[id]/draft.js`. Not blocked in sandbox. |
 | `SANDBOX_MODE` | Server | No (unset = off) | `true`: Telnyx SMS never called (success-shaped result); Resend email only to `SANDBOX_EMAIL_ALLOWLIST` with subject prefixed `[SANDBOX] `. |
 | `SANDBOX_EMAIL_ALLOWLIST` | Server | Only with `SANDBOX_MODE=true` | Comma-separated exact addresses or `@domain`. Unset/empty = no email sent. |
+| `JSS_FRANCHISE` / `VITE_JSS_FRANCHISE` | Server / Client | No (unset = detected from `VERCEL_PROJECT_PRODUCTION_URL` / hostname, else `pittsburgh`) | Franchise slug (`src/lib/jssApps.js` `franchiseConfig`). Drives app-switcher links and `api/_lib/site.js`. |
+| `JSS_SITE_DOMAIN` / `VITE_JSS_SITE_DOMAIN` | Server / Client | No (unset = the franchise's known domain, else none) | Franchise domain: this app at `support.<domain>` (email logo URL), public site `www.<domain>`, sibling apps at `crm.<domain>`, ... |
+| `JSS_EMAIL_DOMAIN` / `VITE_JSS_EMAIL_DOMAIN` | Server | No (unset = site domain, else `jumpstartsportspittsburgh.com`) | Sending domain: `support@`/`info@`, the inbound addresses replies may come from, and the own-sender filter (which also always recognises Pittsburgh's domains). |

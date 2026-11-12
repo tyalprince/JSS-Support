@@ -6,9 +6,10 @@
 // The worker passes the SMTP envelope sender (message.from), not the From header. For
 // Resend that is the bounce address on the send./rsend. subdomain, e.g.
 // 0100...-000000@rsend.jumpstartsportspittsburgh.com, so any local part there counts.
-import { EMAIL_DOMAIN, LEGACY_EMAIL_DOMAIN } from './site.js'
+import { OWN_EMAIL_DOMAINS } from './site.js'
 
-const OWN_DOMAINS = [EMAIL_DOMAIN, LEGACY_EMAIL_DOMAIN]
+// This franchise's configured email domain plus Pittsburgh's (current and legacy); see site.js.
+const OWN_DOMAINS = OWN_EMAIL_DOMAINS
 
 // Resend's return-path subdomains on our domains.
 const BOUNCE_SUBDOMAINS = ['send', 'rsend']
@@ -42,8 +43,8 @@ function addressParts(raw) {
 }
 
 // 'jumpstartsportspgh.com' -> '' ; 'send.jumpstartsportspgh.com' -> 'send' ; other -> null
-function ownSubdomain(domain) {
-  for (const d of OWN_DOMAINS) {
+function ownSubdomain(domain, ownDomains) {
+  for (const d of ownDomains) {
     if (domain === d) return ''
     if (domain.endsWith(`.${d}`)) return domain.slice(0, -(d.length + 1))
   }
@@ -53,9 +54,10 @@ function ownSubdomain(domain) {
 /**
  * Is this inbound email our own automated outbound mail?
  * @param {{ from?: string, subject?: string }} email  from = address or "Name <address>"
+ * @param {string[]} [ownDomains]  our sending domains (default: site.js OWN_EMAIL_DOMAINS)
  * @returns {string|null} a short reason when it should be skipped, else null
  */
-export function ownTransactionalReason({ from, subject } = {}) {
+export function ownTransactionalReason({ from, subject } = {}, ownDomains = OWN_DOMAINS) {
   const subj = String(subject || '').trim().replace(/^\[sandbox\]\s*/i, '')
   // Family Portal camp requests (early pick-up etc.) are sent from portal@ to info@ on
   // purpose and staff work them as tickets, so they are never filtered.
@@ -63,7 +65,7 @@ export function ownTransactionalReason({ from, subject } = {}) {
 
   const parts = addressParts(from)
   if (parts) {
-    const sub = ownSubdomain(parts.domain)
+    const sub = ownSubdomain(parts.domain, ownDomains)
     if (sub !== null) {
       if (BOUNCE_SUBDOMAINS.includes(sub)) return `resend_return_path:${parts.domain}`
       const local = parts.local.split('+')[0]

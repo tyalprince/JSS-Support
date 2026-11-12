@@ -9,7 +9,7 @@ import { sendEmail } from '../../_lib/sendEmail.js'
 import { sendSms } from '../../_lib/sendSms.js'
 import { renderReplyHtml } from '../../_lib/emailTemplate.js'
 // Known inbound addresses (both domains) live in site.js; replies go out from the address
-// the ticket came in on, falling back to support@jumpstartsportspittsburgh.com.
+// the ticket came in on, falling back to support@ on the franchise's email domain.
 import { replyFromAddress } from '../../_lib/site.js'
 
 export default async function handler(req, res) {
