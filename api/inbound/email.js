@@ -8,6 +8,7 @@
 // authenticate against — anyone with the URL but not the secret gets a 401.
 import { supabaseAdmin } from '../_lib/supabaseAdmin.js'
 import { findThread, reopenPatch } from '../_lib/threading.js'
+import { ownTransactionalReason } from '../_lib/transactionalFilter.js'
 
 // How far back a re-email finds the parent's ticket (matches the 90-day auto-close).
 const THREAD_WINDOW_DAYS = 90
@@ -43,6 +44,14 @@ export default async function handler(req, res) {
   const { from, to, subject, text, html } = req.body || {}
   const senderEmail = extractEmail(from)
   if (!senderEmail) return res.status(400).json({ error: 'Could not determine sender email' })
+
+  // Our own automated outbound mail (Registration confirmations, Resend sends BCC'd to
+  // info@, ...) is not a support request. Answer 200 so the worker doesn't retry.
+  const skipReason = ownTransactionalReason({ from: senderEmail, subject })
+  if (skipReason) {
+    console.log(`[inbound/email] skipped own_transactional: ${skipReason}`)
+    return res.status(200).json({ success: true, skipped: 'own_transactional', reason: skipReason })
+  }
 
   const senderName = extractName(from) || senderEmail
   const inboundAddress = extractEmail(to)
