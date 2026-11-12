@@ -29,6 +29,9 @@ const TRANSACTIONAL_SUBJECTS = [
   /^your jump start sports family portal is ready\b/i, // portal invite
 ]
 
+// JSS-Family-Portal's api/camp-request subject: `[Family Portal] <request> – <participant>`.
+const FAMILY_PORTAL_SUBJECT = /^\[family portal\]/i
+
 function addressParts(raw) {
   if (!raw) return null
   const match = String(raw).match(/<([^>]+)>/)
@@ -53,6 +56,11 @@ function ownSubdomain(domain) {
  * @returns {string|null} a short reason when it should be skipped, else null
  */
 export function ownTransactionalReason({ from, subject } = {}) {
+  const subj = String(subject || '').trim().replace(/^\[sandbox\]\s*/i, '')
+  // Family Portal camp requests (early pick-up etc.) are sent from portal@ to info@ on
+  // purpose and staff work them as tickets, so they are never filtered.
+  if (FAMILY_PORTAL_SUBJECT.test(subj)) return null
+
   const parts = addressParts(from)
   if (parts) {
     const sub = ownSubdomain(parts.domain)
@@ -62,7 +70,6 @@ export function ownTransactionalReason({ from, subject } = {}) {
       if (AUTOMATED_LOCAL_PARTS.includes(local)) return `automated_sender:${local}@${parts.domain}`
     }
   }
-  const subj = String(subject || '').trim().replace(/^\[sandbox\]\s*/i, '')
   const hit = TRANSACTIONAL_SUBJECTS.find(re => re.test(subj))
   if (hit) return `transactional_subject:${hit.source}`
   return null

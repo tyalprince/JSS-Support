@@ -47,6 +47,15 @@ test('real people still get tickets', () => {
   keep({ from: 'noreply@example.com', subject: 'Your order shipped' })
 })
 
+test('Family Portal camp requests still become tickets, even from portal@ or a Resend bounce address', () => {
+  keep({ from: 'Jump Start Sports Portal <portal@jumpstartsportspittsburgh.com>', subject: '[Family Portal] 🚗 Early pick-up – Ava Smith' })
+  keep({ from: '010001a19f74d9b9-e6b4-000000@send.jumpstartsportspgh.com', subject: '[Family Portal] 🚗 Early pick-up – Ava Smith' })
+  keep({ from: '010001a1ccb02215-d9b6-000000@rsend.jumpstartsportspittsburgh.com', subject: '[Family Portal] Late drop-off – Ava' })
+  keep({ from: 'portal@jumpstartsportspittsburgh.com', subject: '[SANDBOX] [Family Portal] Early pick-up – Ava' })
+  // Other portal@ mail is still filtered.
+  skip({ from: 'portal@jumpstartsportspittsburgh.com', subject: 'Your account' })
+})
+
 test('missing or malformed input is not skipped', () => {
   keep({})
   keep({ from: null, subject: null })
