@@ -1,4 +1,4 @@
-import { DEFAULT_FROM_ADDRESS, SITE_ORIGIN, PUBLIC_WEBSITE_URL } from './site.js'
+import { DEFAULT_FROM_ADDRESS, SITE_ORIGIN, PUBLIC_WEBSITE_URL, PUBLIC_WEBSITE_LABEL } from './site.js'
 
 function escapeHtml(s) {
   return String(s)
@@ -67,7 +67,7 @@ export function renderReplyHtml(bodyText, { fromAddress = DEFAULT_FROM_ADDRESS }
               <div class="jss-footer-title" style="font-weight:600;color:#475569 !important;margin-bottom:4px;">Jump Start Sports</div>
               <div style="color:#94a3b8 !important;">Youth sports camps &amp; programs in Pittsburgh, PA</div>
               <div style="margin-top:10px;">
-                <a class="jss-link" href="${PUBLIC_WEBSITE_URL}" style="color:#1e3a6e !important;text-decoration:none;">jumpstartsportspittsburgh.com</a>
+                <a class="jss-link" href="${PUBLIC_WEBSITE_URL}" style="color:#1e3a6e !important;text-decoration:none;">${PUBLIC_WEBSITE_LABEL}</a>
                 <span style="color:#94a3b8 !important;">&nbsp;·&nbsp;</span>
                 <a class="jss-link" href="mailto:${fromAddress}" style="color:#1e3a6e !important;text-decoration:none;">${fromAddress}</a>
               </div>

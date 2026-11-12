@@ -62,3 +62,17 @@ test('missing or malformed input is not skipped', () => {
   keep({ from: 'not-an-address', subject: 'hello' })
   assert.equal(ownTransactionalReason(), null)
 })
+
+// ---- Per-franchise domains --------------------------------------------------------------------
+import { siteConfig } from './site.js'
+
+test('a configured franchise recognises its own senders and still Pittsburgh\'s', () => {
+  const own = siteConfig({ JSS_FRANCHISE: 'cleveland', JSS_SITE_DOMAIN: 'jumpstartsportscle.com' }).OWN_EMAIL_DOMAINS
+  assert.ok(ownTransactionalReason({ from: 'registration@jumpstartsportscle.com', subject: 'x' }, own))
+  assert.ok(ownTransactionalReason({ from: 'bounce-1@send.jumpstartsportscle.com', subject: 'x' }, own))
+  assert.ok(ownTransactionalReason({ from: 'noreply@jumpstartsportspittsburgh.com', subject: 'x' }, own))
+  assert.ok(ownTransactionalReason({ from: 'portal@jumpstartsportspgh.com', subject: 'x' }, own))
+  assert.equal(ownTransactionalReason({ from: 'coach@jumpstartsportscle.com', subject: 'Need help' }, own), null)
+  // a Pittsburgh deployment does not treat another franchise's domain as its own
+  assert.equal(ownTransactionalReason({ from: 'registration@jumpstartsportscle.com', subject: 'x' }), null)
+})

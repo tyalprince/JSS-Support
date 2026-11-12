@@ -5,6 +5,11 @@ import { CHANNELS } from '../utils/channels'
 import AppSwitcher from './AppSwitcher.jsx'
 import { AccountButton } from './AccountCenter.jsx'
 import { supabase } from '../lib/supabaseClient.js'
+import { franchiseConfig } from '../lib/jssApps.js'
+
+// This deployment's franchise (VITE_JSS_FRANCHISE / VITE_JSS_SITE_DOMAIN, else detected from
+// the hostname), so the app switcher links to this franchise's own apps.
+const FRANCHISE = franchiseConfig(import.meta.env, typeof window !== 'undefined' ? window.location.hostname : '')
 
 function MenuIcon({ open }) {
   return (
@@ -58,7 +63,7 @@ export default function Layout() {
             )}
           </nav>
           <div className="app-header-user">
-            <AppSwitcher current="support" supabase={supabase} tone="dark" overrides={import.meta.env.VITE_JSS_APP_LINKS} />
+            <AppSwitcher current="support" supabase={supabase} tone="dark" overrides={import.meta.env.VITE_JSS_APP_LINKS} config={FRANCHISE} />
             <span>{staff ? `${staff.first_name} ${staff.last_name}` : ''}</span>
             <button className="signout-btn" onClick={signOut}>Sign out</button>
           </div>
