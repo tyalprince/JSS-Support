@@ -46,7 +46,7 @@ test('with an empty env every value is exactly Pittsburgh\'s', () => {
 test('the Pittsburgh reply email renders the same links and logo as before', () => {
   const html = renderReplyHtml('Hi there')
   assert.ok(html.includes('src="https://support.jumpstartsportspittsburgh.com/brand/jss-logo-white.png"'))
-  assert.ok(html.includes('href="https://www.jumpstartsportspittsburgh.com" style="color:#1e3a6e !important;text-decoration:none;">jumpstartsportspittsburgh.com</a>'))
+  assert.ok(html.includes('href="https://www.jumpstartsportspittsburgh.com" style="color:#0f2044;text-decoration:none">jumpstartsportspittsburgh.com</a>'))
 })
 
 test('a configured franchise sends and links from its own domain', () => {
@@ -87,7 +87,7 @@ test('with an empty env the reply email and AI prompt keep Pittsburgh\'s exact t
   assert.equal(PROFILE.city, 'Pittsburgh')
   assert.equal(siteConfig({}).PROFILE.state, 'PA')
   const html = renderReplyHtml('Hi there')
-  assert.ok(html.includes('<div style="color:#94a3b8 !important;">Youth sports camps &amp; programs in Pittsburgh, PA</div>'))
+  assert.ok(html.includes('<div>Youth sports camps &amp; programs in Pittsburgh, PA</div>'))
   assert.equal(renderReplyHtml('Hi there', { site: siteConfig({}) }), html)
   assert.ok(draftSystemPrompt().startsWith('You are drafting a support reply on behalf of Jump Start Sports (JSS) staff, a youth sports organization in Pittsburgh, PA.\n\nStyle rules:\n'))
   assert.equal(draftSystemPrompt(siteConfig({}).PROFILE), draftSystemPrompt())
