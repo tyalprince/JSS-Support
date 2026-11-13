@@ -4,6 +4,7 @@
 // of RLS: a honeypot field bots tend to fill, and a per-email rate limit against recent tickets.
 import { supabaseAdmin } from './_lib/supabaseAdmin.js'
 import { sendEmail } from './_lib/sendEmail.js'
+import { renderContactNotifyHtml } from './_lib/emailTemplate.js'
 import { DEFAULT_NOTIFY_EMAIL } from './_lib/site.js'
 
 function isValidEmail(email) {
@@ -64,7 +65,7 @@ export default async function handler(req, res) {
   sendEmail({
     to: notifyTo,
     subject: `New website inquiry from ${name}`,
-    html: `<p>${body.replace(/\n/g, '<br/>')}</p>`,
+    html: renderContactNotifyHtml(body),
   }).catch(err => console.error('[contact] staff notify email failed', err))
 
   return res.status(200).json({ success: true, ticketId: ticket.id })
